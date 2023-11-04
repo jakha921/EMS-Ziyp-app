@@ -4,6 +4,7 @@ import jwt
 from fastapi import Request, HTTPException, Depends, status
 
 from config.settings import settings
+from exeptions import NotAuthorizedException, NotValidCredentialsException, UserNotFoundException, TokenExpiredException
 from users.services import UserServices
 
 
@@ -23,25 +24,24 @@ async def get_current_user(token: str = Depends(get_token)):
 
         # get user_id from payload
         user_id: str = payload.get("sub")
-        print('user_id', user_id, type(user_id))
         if not user_id:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
+            raise NotValidCredentialsException
 
         # get user from database
         user = await UserServices.find_one_or_none(id=int(user_id))
-        print('user', user)
 
         if not user:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+            raise UserNotFoundException
 
         return user
     except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired")
+        raise TokenExpiredException
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
 
 
 async def get_current_is_admin(current_user: dict = Depends(get_current_user)):
-    # if not current_user.role != 'admin':
-    #     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User is not admin")
+    print('current_user', current_user.role)
+    if current_user.role != 'admin':
+        raise NotAuthorizedException
     return current_user

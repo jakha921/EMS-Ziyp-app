@@ -4,7 +4,14 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
+from cities.routers import router as cities_router
 from users.routers import router as users_router
+from volunteers.routers import router as volunteers_router
+from categories.routers import router as categories_router
+from products.routers import router as products_router
+from orders.routers import router as orders_router
+from events.routers import router as events_router
+from application_events.routers import router as application_events_router
 
 app = FastAPI(
     title="EMS API",
@@ -41,7 +48,14 @@ async def validation_exception_handler(request: Request, exc: ValidationError):
 
 # register routers
 routers = [
-    users_router
+    cities_router,
+    users_router,
+    volunteers_router,
+    categories_router,
+    products_router,
+    orders_router,
+    events_router,
+    application_events_router,
 ]
 
 for router in routers:

@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from sqlalchemy import String, ForeignKey, Enum
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from config.db import Base
 
@@ -17,6 +17,10 @@ class ApplicationEvents(Base):
     description: Mapped[str] = mapped_column(String(4000), nullable=True)
     created_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # relationships
+    users: Mapped["Users"] = relationship("Users", back_populates="application_events")
+    events: Mapped["Events"] = relationship("Events", back_populates="application_events")
 
     def __repr__(self):
         return f"<ApplicationEvent {self.event_id} - {self.user_id} - {self.status}>"

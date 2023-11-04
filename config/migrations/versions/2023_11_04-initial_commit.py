@@ -1,8 +1,8 @@
 """initial commit
 
-Revision ID: 9861b45aed1e
+Revision ID: 53610a110db0
 Revises: 
-Create Date: 2023-11-03 22:09:44.392055
+Create Date: 2023-11-04 11:37:38.836215
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '9861b45aed1e'
+revision = '53610a110db0'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -127,6 +127,7 @@ def upgrade() -> None:
     sa.Column('study_in', sa.String(length=255), nullable=True, comment='Need to add where user is study'),
     sa.Column('additional_data', sa.String(length=4000), nullable=True),
     sa.Column('avatar_url', sa.String(length=1000), nullable=True),
+    sa.Column('balance', sa.Integer(), nullable=True),
     sa.Column('registered_at', sa.DateTime(), nullable=False),
     sa.Column('updated_at', sa.DateTime(), nullable=False),
     sa.ForeignKeyConstraint(['city_id'], ['cities.id'], ),
@@ -171,8 +172,8 @@ def upgrade() -> None:
     op.create_table('volunteers',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
-    sa.Column('created_at', sa.Integer(), nullable=False),
-    sa.Column('updated_at', sa.Integer(), nullable=False),
+    sa.Column('created_at', sa.DateTime(), nullable=False),
+    sa.Column('updated_at', sa.DateTime(), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )

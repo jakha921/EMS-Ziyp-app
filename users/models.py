@@ -1,7 +1,7 @@
 from datetime import date, datetime
 
 from sqlalchemy import String, ForeignKey, Enum
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from config.db import Base
 
@@ -23,8 +23,18 @@ class Users(Base):
     study_in: Mapped[str] = mapped_column(String(255), nullable=True, comment="Need to add where user is study")
     additional_data: Mapped[str] = mapped_column(String(4000), nullable=True)
     avatar_url: Mapped[str] = mapped_column(String(1000), nullable=True)
+    balance: Mapped[int] = mapped_column(nullable=True, default=0)
     registered_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.utcnow())
     updated_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.utcnow(), onupdate=datetime.utcnow())
+
+    # relationships
+    cities: Mapped["Cities"] = relationship("Cities", back_populates="users")
+
+    volunteers: Mapped["Volunteers"] = relationship("Volunteers", back_populates="users")
+    orders: Mapped["Orders"] = relationship("Orders", back_populates="users")
+    application_events: Mapped["ApplicationEvents"] = relationship("ApplicationEvents", back_populates="users")
+
+    # application_grands = relationship("ApplicationGrands", back_populates="users")
 
     def __repr__(self):
         return f"<User {self.phone or self.email}>"

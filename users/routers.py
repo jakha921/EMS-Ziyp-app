@@ -5,7 +5,7 @@ from users.auth import hash_password, authenticate_user, create_access_token
 from users.dependencies import get_current_user, get_current_is_admin
 from users.models import Users
 from users.services import UserServices
-from users.schemas import SUserRegister, SUserAuth, SAdminRegister, SAdminAuth
+from users.schemas import SUserRegister, SUserAuth, SAdminRegister, SAdminAuth, SUserUpdate
 
 router = APIRouter()
 
@@ -89,7 +89,24 @@ async def get_me(user: Users = Depends(get_current_user)):
     return user
 
 
+# CRUD
 @router.get("/user/all", tags=["Auth & Пользователи"], summary="Получить всех пользователей")
 async def get_all_users(user: Users = Depends(get_current_is_admin)):
     return await UserServices.find_all()
+
+
+@router.get("/user/{user_id}", tags=["Auth & Пользователи"], summary="Получить пользователя по id")
+async def get_user_by_id(user_id: int, user: Users = Depends(get_current_user)):
+    return await UserServices.find_one_or_none(id=user_id)
+
+
+@router.patch("/user/{user_id}", tags=["Auth & Пользователи"], summary="Обновить пользователя по id")
+async def update_user_by_id(user_id: int, update_user: SUserUpdate, user: Users = Depends(get_current_user)):
+    print('id', user_id, update_user.dict())
+    return await UserServices.update(id=user_id, **update_user.dict())
+
+
+@router.delete("/user/{user_id}", tags=["Auth & Пользователи"], summary="Удалить пользователя по id")
+async def delete_user_by_id(user_id: int, user: Users = Depends(get_current_user)):
+    return await UserServices.delete(id=user_id)
 # endregion
