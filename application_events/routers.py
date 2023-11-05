@@ -6,7 +6,7 @@ from users.dependencies import get_current_user
 from users.models import Users
 
 router = APIRouter(
-    prefix="/events",
+    prefix="/applications/events",
     tags=["Заявки на события"],
 )
 

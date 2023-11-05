@@ -32,8 +32,7 @@ class Users(Base):
 
     volunteers: Mapped["Volunteers"] = relationship("Volunteers", back_populates="users")
     orders: Mapped["Orders"] = relationship("Orders", back_populates="users")
-    application_events: Mapped["ApplicationEvents"] = relationship("ApplicationEvents", back_populates="users")
-
+    # application_events = relationship("ApplicationEvents", back_populates="users")
     # application_grands = relationship("ApplicationGrands", back_populates="users")
 
     def __repr__(self):
