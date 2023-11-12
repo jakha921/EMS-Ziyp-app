@@ -1,5 +1,7 @@
-from sqlalchemy import select, insert, delete
+from fastapi import HTTPException, status
+from sqlalchemy import select, insert, delete, or_
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import selectinload
 
 from config.db import async_session
 from exeptions import AlreadyExistsException, NotFoundException
@@ -7,12 +9,19 @@ from exeptions import AlreadyExistsException, NotFoundException
 
 class BaseServices:
     model = None
+    search_fields = []
+    load_relations = []
 
     @classmethod
     async def find_by_id(cls, model_id: int, mapping: bool = True):
         """Получить model по id"""
         async with async_session() as session:
             query = select(cls.model.__table__.columns).filter_by(id=model_id)
+
+            if cls.load_relations:
+                for relation in cls.load_relations:
+                    query = query.options(selectinload(getattr(cls.model, relation)))
+
             result = await session.execute(query)
             # scalar_one_or_none() - возвращает один объект или None
             if mapping:
@@ -25,17 +34,63 @@ class BaseServices:
         """Получить один model по фильтру"""
         async with async_session() as session:
             query = select(cls.model.__table__.columns).filter_by(**kwargs)
+
+            if cls.load_relations:
+                for relation in cls.load_relations:
+                    query = query.options(selectinload(getattr(cls.model, relation)))
+
             result = await session.execute(query)
             return result.mappings().one_or_none()
 
     @classmethod
-    async def find_all(cls, **kwargs):
+    async def find_all(cls, limit: int = None, offset: int = None, search: str = None, **kwargs):
         """Получить все model по фильтру"""
-        async with async_session() as session:
-            query = select(cls.model.__table__.columns).filter_by(**kwargs)  # SELECT * FROM model WHERE kwargs
-            result = await session.execute(query)
-            # print(result.mappings().all())
-            return result.mappings().all()
+        try:
+            async with async_session() as session:
+                query = select(cls.model.__table__.columns).filter_by(**kwargs)  # SELECT * FROM model WHERE kwargs
+
+                # Поиск по полям
+                if search and cls.search_fields:
+                    query = query.where(
+                        or_(
+                            *[getattr(cls.model, field).ilike(f'%{search}%') for field in cls.search_fields]
+                        )
+                    )
+
+                # Загрузка связей
+                if cls.load_relations:
+                    for relation in cls.load_relations:
+                        query = query.options(selectinload(getattr(cls.model, relation)))
+
+                # Пагинация
+                if limit and offset:
+                    query = query.limit(limit).offset(offset)
+
+                # Сортировка
+                query = query.order_by(cls.model.id.desc())
+                result = await session.execute(query)
+                response = result.mappings().all()
+
+                return {
+                    "status": "success",
+                    "detail": f"Get {cls.model.__tablename__} successfully",
+                    "pagination": {
+                        "total": len(response),
+                        "limit": limit,
+                        "offset": offset,
+                        "has_next_page": True if len(response) == limit else False,
+                        "has_previous_page": True if offset > 0 else False,
+                        "current_page": offset + 1 if offset else 1,
+                        "total_pages": len(response) // limit + 1 if len(response) % limit else len(response) // limit
+                    } if limit and offset else None,
+                    "data": response
+                }
+        except Exception as e:
+            raise HTTPException(status_code=400, detail={
+                "status": "error",
+                "detail": f"{cls.model.__tablename__} not retrieved",
+                "data": str(e) if str(e) else None
+            })
 
     @classmethod
     async def create(cls, **data):

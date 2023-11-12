@@ -12,6 +12,10 @@ from products.routers import router as products_router
 from orders.routers import router as orders_router
 from events.routers import router as events_router
 from application_events.routers import router as application_events_router
+from grands.routers import router as grands_router
+from application_grands.routers import router as application_grands_router
+from news.routers import router as news_router
+from faqs.routers import router as faqs_router
 
 app = FastAPI(
     title="EMS API",
@@ -56,6 +60,10 @@ routers = [
     orders_router,
     events_router,
     application_events_router,
+    grands_router,
+    application_grands_router,
+    news_router,
+    faqs_router
 ]
 
 for router in routers:

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Response, Depends, Request
 
-from exeptions import UserAlreadyExistsWithThisEmailException, UserNotFoundException
+from exeptions import UserAlreadyExistsWithThisEmailException, UserNotFoundException, AlreadyExistsException
 from users.auth import hash_password, authenticate_user, create_access_token
 from users.dependencies import get_current_user, get_current_is_admin
 from users.models import Users
@@ -12,9 +12,8 @@ router = APIRouter()
 
 # region Master and Admin
 
-@router.post("/admin/register", tags=["Мастера и Администраторы"], summary="Регистрация администратора")
-@router.post("/master/register", tags=["Мастера и Администраторы"], summary="Регистрация мастера")
-async def register_user(user: SAdminRegister, request: Request):
+@router.post("/admin/register", tags=["Администраторы"], summary="Регистрация администратора")
+async def register_user(user: SAdminRegister):
     is_user_exist = await UserServices.find_one_or_none(email=user.email)
 
     if is_user_exist:
@@ -22,13 +21,10 @@ async def register_user(user: SAdminRegister, request: Request):
 
     hashed_password = hash_password(user.password)
 
-    if request.url.path == "/admin/register":
-        return await UserServices.create(email=user.email, hashed_password=hashed_password, role="admin")
-    else:
-        return await UserServices.create(email=user.email, hashed_password=hashed_password, role="master")
+    return await UserServices.create(email=user.email, hashed_password=hashed_password, role="admin")
 
 
-@router.post("/login", tags=["Мастера и Администраторы"], summary="Авторизация администратора или мастера")
+@router.post("/admin/login", tags=["Администраторы"], summary="Авторизация администратора")
 async def login_user(response: Response, user: SAdminAuth):
     user = await authenticate_user(email=user.email, password=user.password)
     if not user:
@@ -40,10 +36,16 @@ async def login_user(response: Response, user: SAdminAuth):
     # set cookie
     response.set_cookie(key="access_token", value=token, httponly=True)
 
-    return {"access_token": token, "token_type": "bearer"}
+    # convert to dict
+    user = dict(user)
+
+    # remove hashed_password
+    del user['hashed_password']
+
+    return {"access_token": token, "token_type": "bearer", "data": user}
 
 
-@router.post("/logout", tags=["Мастера и Администраторы"], summary="Выход администратора или мастера")
+@router.post("/admin/logout", tags=["Администраторы"], summary="Выход администратора")
 async def logout_user(response: Response):
     response.delete_cookie(key="access_token")
     return {"message": "Logout successful"}
@@ -51,19 +53,25 @@ async def logout_user(response: Response):
 
 # endregion
 
-# region Auth & Users
+# region Auth & Users & Master
 @router.post("/user/register", tags=["Auth & Пользователи"], summary="Регистрация пользователя")
-async def register_user(user: SUserRegister):
+@router.post("/master/register", tags=["Мастера"], summary="Регистрация мастера")
+async def register_user(user: SUserRegister, request: Request):
     is_user_exist = await UserServices.find_one_or_none(phone=user.phone)
 
     if is_user_exist:
-        raise UserAlreadyExistsWithThisEmailException
+        raise AlreadyExistsException(f"User with {user.phone} already exists")
 
     hashed_password = hash_password(user.password)
-    return await UserServices.create(phone=user.phone, hashed_password=hashed_password, role="user")
+
+    if request.url.path == "/master/register":
+        return await UserServices.create(phone=user.phone, hashed_password=hashed_password, role="master")
+    else:
+        return await UserServices.create(phone=user.phone, hashed_password=hashed_password, role="user")
 
 
 @router.post("/user/login", tags=["Auth & Пользователи"], summary="Авторизация пользователя")
+@router.post("/master/login", tags=["Мастера"], summary="Авторизация мастера")
 async def login_user(response: Response, user: SUserAuth):
     user = await authenticate_user(phone=user.phone, password=user.password)
     if not user:
@@ -75,10 +83,11 @@ async def login_user(response: Response, user: SUserAuth):
     # set cookie
     response.set_cookie(key="access_token", value=token, httponly=True)
 
-    return {"access_token": token, "token_type": "bearer"}
+    return {"access_token": token, "token_type": "bearer", "data": user}
 
 
 @router.post("/user/logout", tags=["Auth & Пользователи"], summary="Выход пользователя")
+@router.post("/master/logout", tags=["Мастера"], summary="Выход мастера")
 async def logout_user(response: Response):
     response.delete_cookie(key="access_token")
     return {"message": "Logout successful"}
