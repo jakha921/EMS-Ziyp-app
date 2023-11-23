@@ -13,8 +13,11 @@ router = APIRouter(
 
 # CRUD
 @router.get("", summary="Получить все города")
-async def get_all_cities(user: Users = Depends(get_current_user)):
-    return await CityServices.find_all()
+async def get_all_cities(user: Users = Depends(get_current_user),
+                         page: int = None,
+                         limit: int = None,
+                         ):
+    return await CityServices.find_all(limit=limit, offset=page)
 
 
 @router.get("/{city_id}", summary="Получить город по id")
