@@ -13,8 +13,11 @@ router = APIRouter(
 
 # CRUD
 @router.get("", summary="Получить всех волонтеров")
-async def get_all_volunteers(user: Users = Depends(get_current_user)):
-    return await VolunteerServices.find_all()
+async def get_all_volunteers(user: Users = Depends(get_current_user),
+                             page: int = None,
+                             limit: int = None,
+                             ):
+    return await VolunteerServices.find_all(limit=limit, offset=page)
 
 
 @router.get("/{volunteer_id}", summary="Получить волонтера по id")

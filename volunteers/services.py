@@ -8,6 +8,9 @@ from base.base_service import BaseServices
 
 class VolunteerServices(BaseServices):
     model = Volunteers
+    load_relations = [
+        "users"
+    ]
 
     @classmethod
     async def create(cls, **data):
