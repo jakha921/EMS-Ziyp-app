@@ -13,8 +13,12 @@ router = APIRouter(
 
 # CRUD
 @router.get("", summary="Получить все продукты")
-async def get_all_products(user: Users = Depends(get_current_user)):
-    return await ProductService.find_all()
+async def get_all_products(user: Users = Depends(get_current_user),
+                           page: int = None,
+                           limit: int = None,
+                           search: str = None,
+                           ):
+    return await ProductService.find_all(limit=limit, offset=page, search=search)
 
 
 @router.get("/{product_id}", summary="Получить продукт по id")

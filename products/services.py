@@ -8,6 +8,9 @@ from base.base_service import BaseServices
 
 class ProductService(BaseServices):
     model = Products
+    load_relations = [
+        "categories"
+    ]
 
     @classmethod
     async def create(cls, **data):
