@@ -1,5 +1,5 @@
 from sqlalchemy import String, ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from datetime import datetime, date, time
 
@@ -29,6 +29,10 @@ class Events(Base):
     description_uz: Mapped[str] = mapped_column(String(4000), nullable=True)
     created_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # relationships
+    # cities: Mapped["Cities"] = relationship("Cities", back_populates="events")
+    # application_events = relationship("ApplicationEvents", back_populates="events")
 
     def __repr__(self):
         return f"<Events {self.name_ru}>"

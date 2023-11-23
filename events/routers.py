@@ -1,3 +1,5 @@
+from datetime import date
+
 from fastapi import APIRouter, Depends
 
 from events.services import EventServices
@@ -13,8 +15,18 @@ router = APIRouter(
 
 # CRUD
 @router.get("", summary="Получить все события")
-async def get_all_events(user: Users = Depends(get_current_user)):
-    return await EventServices.find_all()
+async def get_all_events(user: Users = Depends(get_current_user),
+                         new_event: bool = None,
+                         is_paid_event: bool = None,
+                         page: int = None,
+                         limit: int = None,
+                         search: str = None,
+                         ):
+    return await EventServices.find_all(new_event=new_event,
+                                        is_paid_event=is_paid_event,
+                                        limit=limit,
+                                        offset=page,
+                                        search=search)
 
 
 @router.get("/{event_id}", summary="Получить событие по id")
@@ -24,7 +36,20 @@ async def get_event_by_id(event_id: int, user: Users = Depends(get_current_user)
 
 @router.post("", summary="Создать событие")
 async def create_event(event: SEventCreate, user: Users = Depends(get_current_user)):
-    return await EventServices.create(**event.dict())
+    try:
+        if event.start_date < date.today():
+            return {
+                "status": "error",
+                "detail": f"Дата начала события не может быть меньше текущей даты",
+                "data": None
+            }
+        return await EventServices.create(**event.dict())
+    except Exception as e:
+        return {
+            "status": "error",
+            "detail": f"Событие не создано",
+            "data": str(e) if str(e) else None
+        }
 
 
 @router.patch("/{event_id}", summary="Обновить событие по id")
