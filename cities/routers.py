@@ -6,13 +6,13 @@ from users.dependencies import get_current_user
 from users.models import Users
 
 router = APIRouter(
-    prefix="/city",
+    prefix="/cities",
     tags=["Города"],
 )
 
 
 # CRUD
-@router.get("/all", summary="Получить все города")
+@router.get("", summary="Получить все города")
 async def get_all_cities(user: Users = Depends(get_current_user)):
     return await CityServices.find_all()
 

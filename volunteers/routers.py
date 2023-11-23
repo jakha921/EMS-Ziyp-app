@@ -6,13 +6,13 @@ from users.dependencies import get_current_user
 from users.models import Users
 
 router = APIRouter(
-    prefix="/volunteer",
+    prefix="/volunteers",
     tags=["Волонтеры"],
 )
 
 
 # CRUD
-@router.get("/all", summary="Получить всех волонтеров")
+@router.get("", summary="Получить всех волонтеров")
 async def get_all_volunteers(user: Users = Depends(get_current_user)):
     return await VolunteerServices.find_all()
 

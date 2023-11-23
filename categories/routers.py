@@ -12,7 +12,7 @@ router = APIRouter(
 
 
 # CRUD
-@router.get("/all", summary="Получить все категории")
+@router.get("", summary="Получить все категории")
 async def get_all_categories(user: Users = Depends(get_current_user)):
     return await CategoryServices.find_all()
 
