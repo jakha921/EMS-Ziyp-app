@@ -8,6 +8,10 @@ from base.base_service import BaseServices
 
 class OrderServices(BaseServices):
     model = Orders
+    load_relations = [
+        "users",
+        "products"
+    ]
 
     @classmethod
     async def create(cls, **data):
