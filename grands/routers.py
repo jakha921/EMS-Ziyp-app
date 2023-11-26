@@ -1,38 +1,42 @@
 from fastapi import APIRouter, Depends
 
-from news.services import NewsServices
-from news.schemas import SNewsCreate, SNewsUpdate
+from grands.services import GrandsServices
+from grands.schemas import SGrandCreate, SGrandUpdate
 from users.dependencies import get_current_user
 from users.models import Users
 
 router = APIRouter(
-    prefix="/news",
-    tags=["Новости"],
+    prefix="/grands",
+    tags=["Гранды"],
 )
 
 
 # CRUD
-@router.get("", summary="Получить все новости")
-async def get_all_news(user: Users = Depends(get_current_user)):
-    return await NewsServices.find_all()
+@router.get("", summary="Получить все гранды")
+async def get_all_grands(user: Users = Depends(get_current_user),
+                         page: int = None,
+                         limit: int = None,
+                         search: str = None,
+                         ):
+    return await GrandsServices.find_all(limit=limit, offset=page, search=search)
 
 
-@router.get("/{news_id}", summary="Получить новость по id")
-async def get_news_by_id(news_id: int, user: Users = Depends(get_current_user)):
-    return await NewsServices.find_one(id=news_id)
+@router.get("/{grand_id}", summary="Получить гранд по id")
+async def get_grand_by_id(grand_id: int, user: Users = Depends(get_current_user)):
+    return await GrandsServices.find_one_or_none(id=grand_id)
 
 
-@router.post("", summary="Создать новость")
-async def create_news(news: SNewsCreate, user: Users = Depends(get_current_user)):
-    return await NewsServices.create(**news.dict())
+@router.post("", summary="Создать гранд")
+async def create_grand(grand: SGrandCreate, user: Users = Depends(get_current_user)):
+    return await GrandsServices.create(**grand.dict())
 
 
-@router.patch("/{news_id}", summary="Обновить новость по id")
-async def update_news_by_id(news_id: int, news: SNewsUpdate, user: Users = Depends(get_current_user)):
-    return await NewsServices.update(id=news_id, **news.dict())
+@router.patch("/{grand_id}", summary="Обновить гранд по id")
+async def update_grand_by_id(grand_id: int, grand: SGrandUpdate, user: Users = Depends(get_current_user)):
+    return await GrandsServices.update(id=grand_id, **grand.dict())
 
 
-@router.delete("/{news_id}", summary="Удалить новость по id")
-async def delete_news_by_id(news_id: int, user: Users = Depends(get_current_user)):
-    return await NewsServices.delete(id=news_id)
+@router.delete("/{grand_id}", summary="Удалить гранд по id")
+async def delete_grand_by_id(grand_id: int, user: Users = Depends(get_current_user)):
+    return await GrandsServices.delete(id=grand_id)
 # endregion

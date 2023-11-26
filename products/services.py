@@ -11,6 +11,14 @@ class ProductService(BaseServices):
     load_relations = [
         "categories"
     ]
+    search_fields = [
+        "name_ru",
+        "name_en",
+        "name_uz",
+        "description_ru",
+        "description_en",
+        "description_uz",
+    ]
 
     @classmethod
     async def create(cls, **data):

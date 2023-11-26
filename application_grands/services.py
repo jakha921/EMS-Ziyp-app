@@ -4,3 +4,4 @@ from base.base_service import BaseServices
 
 class ApplicationGrandsServices(BaseServices):
     model = ApplicationGrands
+    load_relations = ["users", "grands"]

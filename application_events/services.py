@@ -4,3 +4,4 @@ from base.base_service import BaseServices
 
 class ApplicationEventServices(BaseServices):
     model = ApplicationEvents
+    load_relations = ["users", "events"]

@@ -17,8 +17,9 @@ async def get_all_products(user: Users = Depends(get_current_user),
                            page: int = None,
                            limit: int = None,
                            search: str = None,
+                           category_id: int = None,
                            ):
-    return await ProductService.find_all(limit=limit, offset=page, search=search)
+    return await ProductService.find_all(limit=limit, offset=page, search=search, category_id=category_id)
 
 
 @router.get("/{product_id}", summary="Получить продукт по id")

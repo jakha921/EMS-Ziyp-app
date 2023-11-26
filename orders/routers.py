@@ -14,12 +14,11 @@ router = APIRouter(
 # CRUD
 @router.get("", summary="Получить все заказы")
 async def get_all_orders(user: Users = Depends(get_current_user),
-                         user_id: int = None,
                          page: int = None,
                          limit: int = None,
-                         search: str = None,
+                         user_id: int = None,
                          ):
-    return await OrderServices.find_all(limit=limit, offset=page, search=search, user_id=user_id)
+    return await OrderServices.find_all(limit=limit, offset=page, user_id=user_id)
 
 
 @router.get("/{order_id}", summary="Получить заказ по id")

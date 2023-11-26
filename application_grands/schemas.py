@@ -14,7 +14,7 @@ class SApplicationGrandCreate(BaseModel):
         schema_extra = {
             "example": {
                 "user_id": 1,
-                "event_id": 1,
+                "grand_id": 1,
                 "status": "pending"
             }
         }

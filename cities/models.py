@@ -17,6 +17,7 @@ class Cities(Base):
     updated_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     users: Mapped["Users"] = relationship(back_populates="cities")
+    events: Mapped["Events"] = relationship(back_populates="cities")
 
     def __repr__(self):
         return f"<City {self.name_ru}>"

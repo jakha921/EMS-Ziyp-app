@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
-from grands.services import GrandsServices
-from grands.schemas import SGrandCreate, SGrandUpdate
+from application_grands.services import ApplicationGrandsServices
+from application_grands.schemas import SApplicationGrandCreate, SApplicationGrandUpdate
 from users.dependencies import get_current_user
 from users.models import Users
 
@@ -13,25 +13,29 @@ router = APIRouter(
 
 # CRUD
 @router.get("", summary="Получить все заявки на гранты")
-async def get_all_grands(user: Users = Depends(get_current_user)):
-    return await GrandsServices.find_all()
+async def get_all_grands(user: Users = Depends(get_current_user),
+                         page: int = None,
+                         limit: int = None,
+                         user_id: int = None,
+                         ):
+    return await ApplicationGrandsServices.find_all(limit=limit, offset=page,user_id=user_id)
 
 
 @router.get("/{grand_id}", summary="Получить заявку на грант по id")
 async def get_grand_by_id(grand_id: int, user: Users = Depends(get_current_user)):
-    return await GrandsServices.find_one(id=grand_id)
+    return await ApplicationGrandsServices.find_one_or_none(id=grand_id)
 
 
 @router.post("", summary="Создать заявку на грант")
-async def create_grand(grand: SGrandCreate, user: Users = Depends(get_current_user)):
-    return await GrandsServices.create(**grand.dict())
+async def create_grand(grand: SApplicationGrandCreate, user: Users = Depends(get_current_user)):
+    return await ApplicationGrandsServices.create(**grand.dict())
 
 
 @router.patch("/{grand_id}", summary="Обновить заявку на грант по id")
-async def update_grand_by_id(grand_id: int, grand: SGrandUpdate, user: Users = Depends(get_current_user)):
-    return await GrandsServices.update(id=grand_id, **grand.dict())
+async def update_grand_by_id(grand_id: int, grand: SApplicationGrandUpdate, user: Users = Depends(get_current_user)):
+    return await ApplicationGrandsServices.update(id=grand_id, **grand.dict())
 
 
 @router.delete("/{grand_id}", summary="Удалить заявку на грант по id")
 async def delete_grand_by_id(grand_id: int, user: Users = Depends(get_current_user)):
-    return await GrandsServices.delete(id=grand_id)
+    return await ApplicationGrandsServices.delete(id=grand_id)

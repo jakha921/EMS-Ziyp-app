@@ -31,8 +31,8 @@ class Events(Base):
     updated_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # relationships
-    # cities: Mapped["Cities"] = relationship("Cities", back_populates="events")
-    # application_events = relationship("ApplicationEvents", back_populates="events")
+    cities: Mapped["Cities"] = relationship("Cities", back_populates="events")
+    application_events: Mapped["ApplicationEvents"] = relationship("ApplicationEvents", back_populates="events")
 
     def __repr__(self):
         return f"<Events {self.name_ru}>"
