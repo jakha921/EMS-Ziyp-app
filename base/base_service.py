@@ -16,10 +16,10 @@ class BaseServices:
     load_relations = []
 
     @classmethod
-    async def find_by_id(cls, model_id: int, mapping: bool = True):
+    async def find_by_id(cls, model_id: int, mapping: bool = False):
         """Получить model по id"""
         async with async_session() as session:
-            query = select(cls.model.__table__.columns).filter_by(id=model_id)
+            query = select(cls.model).filter_by(id=model_id)
 
             if cls.load_relations:
                 for relation in cls.load_relations:
@@ -36,14 +36,14 @@ class BaseServices:
     async def find_one_or_none(cls, **kwargs):
         """Получить один model по фильтру"""
         async with async_session() as session:
-            query = select(cls.model.__table__.columns).filter_by(**kwargs)
+            query = select(cls.model).filter_by(**kwargs)
 
             if cls.load_relations:
                 for relation in cls.load_relations:
                     query = query.options(selectinload(getattr(cls.model, relation)))
 
             result = await session.execute(query)
-            return result.mappings().one_or_none()
+            return result.scalars().one_or_none()
 
     @classmethod
     async def find_all(cls, limit: int = None, offset: int = None, search: str = None, **kwargs):
@@ -82,7 +82,14 @@ class BaseServices:
                 result = await session.execute(query)
                 response = result.mappings().all()
 
-                response = [item[f'{(cls.model.__tablename__).capitalize()}'] for item in response]
+                # Преобразование в список
+                if cls.model.__tablename__ not in ["application_grands", "application_events"]:
+                    response = [item[f'{(cls.model.__tablename__).capitalize()}'] for item in response]
+                else:
+                    model_name = cls.model.__tablename__.split('_')  # ['application', 'grands']
+                    model_name = [item.capitalize() for item in model_name]  # ['Application', 'Grands']
+                    model_name = ''.join(model_name)  # 'ApplicationGrands'
+                    response = [item[f'{model_name}'] for item in response]
 
                 # Подсчет количества записей
                 result_count_items = (await session.execute(length_query)).scalar()
@@ -121,8 +128,16 @@ class BaseServices:
         async with async_session() as session:
             result = await session.execute(query)
             await session.commit()
-            return result.mappings().first()[f'{(cls.model.__tablename__).capitalize()}']
-        # except (SQLAlchemyError, Exception) as e:
+            print('name model', cls.model.__tablename__)
+            if cls.model.__tablename__ not in ['application_grands',
+                                               'application_event']:
+                return result.mappings().first()[f'{(cls.model.__tablename__).capitalize()}']
+            else:
+                model_name = cls.model.__tablename__.split('_')  # ['application', 'grands']
+                model_name = [item.capitalize() for item in model_name]  # ['Application', 'Grands']
+                model_name = ''.join(model_name)  # 'ApplicationGrands'
+                return result.mappings().first()[f'{model_name}']
+            # except (SQLAlchemyError, Exception) as e:
         #     if isinstance(e, SQLAlchemyError):
         #         msg = "Database Exc: Cannot insert data into table"
         #     elif isinstance(e, Exception):
