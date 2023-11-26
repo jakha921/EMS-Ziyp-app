@@ -3,8 +3,8 @@ from datetime import datetime
 
 from fastapi import HTTPException
 from sqlalchemy import or_, select
-from sqlalchemy.orm import selectinload
-from sqlalchemy.sql.functions import count
+from sqlalchemy.orm import selectinload, outerjoin
+from sqlalchemy.sql.functions import count, func
 
 from config.db import async_session
 from events.models import Events
@@ -14,15 +14,19 @@ from base.base_service import BaseServices
 class EventServices(BaseServices):
     model = Events
     search_fields = ['name_ru', 'name_en', 'name_uz', 'description_ru', 'description_en', 'description_uz', 'address']
-    # load_relations = ['cities']
+    load_relations = ['cities']
 
     @classmethod
     async def find_all(cls, new_event: bool = None, limit: int = None, offset: int = None, search: str = None,
                        **kwargs):
         """Получить все model по фильтру"""
         try:
-            async with async_session() as session:
-                query = select(cls.model)
+            async with (async_session() as session):
+                # add count of applications event if application_events is not empty else 0
+                query = select(cls.model, func.count(cls.model.application_events).label('count_applications')). \
+                    outerjoin(cls.model.application_events). \
+                    group_by(cls.model.id)
+
                 length_query = select(count(cls.model.id))
 
                 if kwargs.get('is_paid_event') is not None:
@@ -64,7 +68,15 @@ class EventServices(BaseServices):
                 result = await session.execute(query)
                 response = result.mappings().all()
 
-                response = [item[f'{(cls.model.__tablename__).capitalize()}'] for item in response]
+                # response = [item[f'{(cls.model.__tablename__).capitalize()}'] for item in response]
+
+                # convert response to dict
+                response = [
+                    {
+                        **item[f'{(cls.model.__tablename__).capitalize()}'].__dict__,
+                        'count_applications': item['count_applications']
+                    } for item in response
+                ]
 
                 # Подсчет количества записей
                 result_count_items = (await session.execute(length_query)).scalar()
