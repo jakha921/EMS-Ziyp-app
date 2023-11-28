@@ -36,11 +36,8 @@ async def login_user(response: Response, user: SAdminAuth):
     # set cookie
     response.set_cookie(key="access_token", value=token, httponly=True)
 
-    # convert to dict
-    user = dict(user)
-
-    # remove hashed_password
-    del user['hashed_password']
+    # remove password from response
+    user.hashed_password = None
 
     return {"access_token": token, "token_type": "bearer", "data": user}
 

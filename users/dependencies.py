@@ -1,38 +1,23 @@
 from datetime import datetime
 
 import jwt
-from fastapi import Request, HTTPException, Depends, status
+from fastapi import HTTPException, Depends, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from config.settings import settings
 from exeptions import NotAuthorizedException, NotValidCredentialsException, UserNotFoundException, TokenExpiredException
 from users.services import UserServices
 
-
-class JWTBearer(HTTPBearer):
-    def __init__(self, auto_error: bool = True):
-        super(JWTBearer, self).__init__(auto_error=auto_error)
-
-    async def __call__(self, request: Request):
-        credentials: HTTPAuthorizationCredentials = await super(JWTBearer, self).__call__(request)
-        if credentials:
-            if not credentials.scheme == "Bearer":
-                raise HTTPException(status_code=403, detail="Invalid authentication scheme.")
-            return credentials.credentials
-        else:
-            raise HTTPException(status_code=403, detail="Invalid authorization code.")
+bearer = HTTPBearer()
 
 
-def get_token(request: Request):
-    token = request.cookies.get("access_token")
-    if not token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-    return token
-
-
-async def get_current_user(token: str = Depends(get_token),
-                           credentials: HTTPAuthorizationCredentials = Depends(JWTBearer())):
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(bearer)):
     try:
+        if not credentials:
+            raise NotValidCredentialsException
+
+        token = credentials.credentials
+
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         expire: str = payload.get("exp")
         if (not expire) or (int(expire) < int(datetime.utcnow().timestamp())):

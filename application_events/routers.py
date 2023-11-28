@@ -17,8 +17,10 @@ async def get_all_events(user: Users = Depends(get_current_user),
                          page: int = None,
                          limit: int = None,
                          user_id: int = None,
+                         event_id: int = None,
+                         status: str = None, # approved, rejected, pending
                          ):
-    return await ApplicationEventServices.find_all(page=page, limit=limit, user_id=user_id)
+    return await ApplicationEventServices.find_all(page=page, limit=limit, user_id=user_id, event_id=event_id, status=status)
 
 
 @router.get("/{event_id}", summary="Получить заявку на событие по id")
