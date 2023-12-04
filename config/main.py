@@ -16,6 +16,7 @@ from grands.routers import router as grands_router
 from application_grands.routers import router as application_grands_router
 from news.routers import router as news_router
 from faqs.routers import router as faqs_router
+from aws_media.routers import router as aws_media_router
 
 app = FastAPI(
     title="EMS API",
@@ -52,6 +53,7 @@ async def validation_exception_handler(request: Request, exc: ValidationError):
 
 # register routers
 routers = [
+    aws_media_router,
     cities_router,
     users_router,
     volunteers_router,
