@@ -50,4 +50,13 @@ async def upload_file(file):
     #     get the url of the image
     return f"https://{AWS_BUCKET}.s3.amazonaws.com/{file_name}"
 
+
+async def change_url(urls: str, to_list: bool):
+    if urls is None:
+        return []
+    if to_list:
+        return urls.split(",")
+    else:
+        return ",".join(urls)
+
 # endregion

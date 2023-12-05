@@ -24,7 +24,7 @@ async def get_all_products(user: Users = Depends(get_current_user),
 
 @router.get("/{product_id}", summary="Получить продукт по id")
 async def get_product_by_id(product_id: int, user: Users = Depends(get_current_user)):
-    return await ProductService.find_by_id(product_id)
+    return await ProductService.find_one_or_none(id=product_id)
 
 
 @router.post("", summary="Создать продукт")

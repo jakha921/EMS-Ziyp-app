@@ -10,6 +10,7 @@ class SNewsCreate(BaseModel):
     description_ru: str = Field(None, max_length=4000)
     description_uz: str = Field(None, max_length=4000)
     description_en: str = Field(None, max_length=4000)
+    images: list = Field(None)
 
     class Config:
         orm_mode = True
@@ -21,7 +22,11 @@ class SNewsCreate(BaseModel):
                 "name_en": "Name",
                 "description_ru": "Описание",
                 "description_uz": "Tavsif",
-                "description_en": "Description"
+                "description_en": "Description",
+                "images": [
+                    "https://example.com/image1.jpg",
+                    "https://example.com/image2.jpg"
+                ]
             }
         }
 

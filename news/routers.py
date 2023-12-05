@@ -14,15 +14,15 @@ router = APIRouter(
 # CRUD
 @router.get("", summary="Получить все новости")
 async def get_all_news(user: Users = Depends(get_current_user),
+                       page: int = None,
                        limit: int = None,
-                       offset: int = None,
                        search: str = None):
-    return await NewsServices.find_all(limit=limit, offset=offset, search=search)
+    return await NewsServices.find_all(limit=limit, offset=page, search=search)
 
 
 @router.get("/{news_id}", summary="Получить новость по id")
 async def get_news_by_id(news_id: int, user: Users = Depends(get_current_user)):
-    return await NewsServices.find_one(id=news_id)
+    return await NewsServices.find_one_or_none(id=news_id)
 
 
 @router.post("", summary="Создать новость")

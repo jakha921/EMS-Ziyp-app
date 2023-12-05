@@ -6,6 +6,7 @@ from sqlalchemy import or_, select
 from sqlalchemy.orm import selectinload, outerjoin
 from sqlalchemy.sql.functions import count, func
 
+from aws_media.services import change_url
 from config.db import async_session
 from events.models import Events
 from base.base_service import BaseServices
@@ -71,10 +72,19 @@ class EventServices(BaseServices):
                 # response = [item[f'{(cls.model.__tablename__).capitalize()}'] for item in response]
 
                 # convert response to dict
+                table_name = f'{(cls.model.__tablename__).capitalize()}'
                 response = [
                     {
-                        **item[f'{(cls.model.__tablename__).capitalize()}'].__dict__,
+                        **item[table_name].__dict__,
                         'count_applications': item['count_applications']
+                    } for item in response
+                ]
+
+                # change url
+                response = [
+                    {
+                        **item,
+                        'image_urls': await change_url(item['image_urls'], True)
                     } for item in response
                 ]
 

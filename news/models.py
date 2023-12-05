@@ -18,6 +18,7 @@ class News(Base):
     description_uz: Mapped[str] = mapped_column(String(4000), nullable=True)
     created_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    images: Mapped[str] = mapped_column(nullable=True, comment="Array of image urls")
 
     def __repr__(self):
         return f"<News {self.name_ru}>"

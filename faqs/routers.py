@@ -13,8 +13,8 @@ router = APIRouter(
 
 # CRUD
 @router.get("", summary="Получить все FAQs")
-async def get_all_faqs(user: Users = Depends(get_current_user)):
-    return await FAQsServices.find_all()
+async def get_all_faqs(user: Users = Depends(get_current_user), page: int = None, limit: int = None, search: str = None):
+    return await FAQsServices.find_all(limit=limit, offset=page, search=search)
 
 
 @router.get("/{faq_id}", summary="Получить FAQ по id")

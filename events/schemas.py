@@ -18,10 +18,13 @@ class SEventCreate(BaseModel):
     is_paid_event: bool
     price: int
     scores: int
+    address_ru: str = Field(None, max_length=255)
+    address_uz: str = Field(None, max_length=255)
+    address_en: str = Field(None, max_length=255)
     description_ru: str = Field(None, max_length=4000)
     description_uz: str = Field(None, max_length=4000)
     description_en: str = Field(None, max_length=4000)
-    image_urls: str = Field(None, max_length=4000)
+    image_urls: list = Field(None)
 
     class Config:
         orm_mode = True
@@ -40,10 +43,16 @@ class SEventCreate(BaseModel):
                 "is_paid_event": True,
                 "price": 10000,
                 "scores": 10,
+                "address_ru": "Event address",
+                "address_uz": "Event address",
+                "address_en": "Event address",
                 "description_ru": "Event description",
                 "description_uz": "Event description",
                 "description_en": "Event description",
-                "image_urls": "https://example.com/image.jpg"
+                "image_urls": [
+                    "https://example.com/image1.jpg",
+                    "https://example.com/image2.jpg"
+                ]
             }
         }
 

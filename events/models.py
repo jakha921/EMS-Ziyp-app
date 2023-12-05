@@ -18,12 +18,14 @@ class Events(Base):
     end_date: Mapped[date]
     end_time: Mapped[time]
     city_id: Mapped[int] = mapped_column(ForeignKey("cities.id"))
-    address: Mapped[str] = mapped_column(String(255), nullable=True)
     is_paid_event: Mapped[bool]
     place: Mapped[int]
     price: Mapped[int] = mapped_column(nullable=False, default=0)
     scores: Mapped[int]
     image_urls: Mapped[str]
+    address_uz: Mapped[str] = mapped_column(String(255), nullable=True)
+    address_en: Mapped[str] = mapped_column(String(255), nullable=True)
+    address_ru: Mapped[str] = mapped_column(String(255), nullable=True)
     description_ru: Mapped[str] = mapped_column(String(4000), nullable=True)
     description_en: Mapped[str] = mapped_column(String(4000), nullable=True)
     description_uz: Mapped[str] = mapped_column(String(4000), nullable=True)

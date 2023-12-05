@@ -1,5 +1,6 @@
 from sqlalchemy import insert, select
 
+from aws_media.services import change_url
 from config.db import async_session
 from exeptions import AlreadyExistsException, NotFoundException
 from products.models import Products
@@ -32,7 +33,7 @@ class ProductService(BaseServices):
                     f"{(cls.model.__tablename__).capitalize()} with {name_ru} already exists")
 
         if images := data.get('images', None):
-            data['images'] = str(images)
+            data['images'] = await change_url(images, False)
 
         query = insert(cls.model).values(**data).returning(cls.model)
         async with async_session() as session:
@@ -52,7 +53,7 @@ class ProductService(BaseServices):
                 raise NotFoundException(f"{(cls.model.__tablename__).capitalize()} with id {id} not found")
 
             if images := data.get('images', None):
-                data['images'] = str(images)
+                data['images'] = await change_url(images, False)
 
             for key, value in data.items():
                 if value:
