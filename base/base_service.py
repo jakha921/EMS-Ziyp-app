@@ -84,7 +84,9 @@ class BaseServices:
 
                 # Преобразование в список
                 if cls.model.__tablename__ not in ["application_grands", "application_events"]:
-                    response = [item[f'{(cls.model.__tablename__).capitalize()}'] for item in response]
+                    response = [item[
+                                    f'{(cls.model.__tablename__).capitalize()}' if cls.model.__tablename__ != 'faqs' else 'FAQs']
+                                for item in response]
                 else:
                     model_name = cls.model.__tablename__.split('_')  # ['application', 'grands']
                     model_name = [item.capitalize() for item in model_name]  # ['Application', 'Grands']

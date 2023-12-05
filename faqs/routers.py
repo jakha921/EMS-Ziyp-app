@@ -19,7 +19,7 @@ async def get_all_faqs(user: Users = Depends(get_current_user)):
 
 @router.get("/{faq_id}", summary="Получить FAQ по id")
 async def get_faq_by_id(faq_id: int, user: Users = Depends(get_current_user)):
-    return await FAQsServices.find_one(id=faq_id)
+    return await FAQsServices.find_one_or_none(id=faq_id)
 
 
 @router.post("", summary="Создать FAQ")
