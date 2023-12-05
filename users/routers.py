@@ -98,11 +98,12 @@ async def get_me(user: Users = Depends(get_current_user)):
 # CRUD
 @router.get("/user/all", tags=["Auth & Пользователи"], summary="Получить всех пользователей")
 async def get_all_users(user: Users = Depends(get_current_is_admin),
+                        role: str = None,  # "admin", "user", "master"
                         page: int = None,
                         limit: int = None,
                         search: str = None,
                         ):
-    return await UserServices.find_all(limit=limit, offset=page, search=search)
+    return await UserServices.find_all(limit=limit, offset=page, search=search, role=role)
 
 
 @router.get("/user/{user_id}", tags=["Auth & Пользователи"], summary="Получить пользователя по id")
