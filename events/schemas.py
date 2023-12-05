@@ -7,8 +7,8 @@ from base.base_schema import AllOptional
 
 class SEventCreate(BaseModel):
     name_ru: str = Field(max_length=255)
-    name_uz: str = Field(max_length=255)
-    name_en: str = Field(max_length=255)
+    name_uz: str = Field(None, max_length=255)
+    name_en: str = Field(None, max_length=255)
     start_date: date
     start_time: time
     end_date: date

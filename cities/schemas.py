@@ -4,9 +4,9 @@ from base.base_schema import AllOptional
 
 
 class SCityCreate(BaseModel):
-    name_ru: str
-    name_uz: str
-    name_en: str
+    name_ru: str = Field(max_length=255)
+    name_uz: str = Field(None, max_length=255)
+    name_en: str = Field(None, max_length=255)
 
     class Config:
         orm_mode = True

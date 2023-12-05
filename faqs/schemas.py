@@ -5,8 +5,8 @@ from base.base_schema import AllOptional
 
 class SFaqCreate(BaseModel):
     name_ru: str = Field(max_length=255)
-    name_uz: str = Field(max_length=255)
-    name_en: str = Field(max_length=255)
+    name_uz: str = Field(None, max_length=255)
+    name_en: str = Field(None, max_length=255)
     description_ru: str = Field(None, max_length=4000)
     description_uz: str = Field(None, max_length=4000)
     description_en: str = Field(None, max_length=4000)
