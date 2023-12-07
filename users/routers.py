@@ -5,7 +5,7 @@ from users.auth import hash_password, authenticate_user, create_access_token
 from users.dependencies import get_current_user, get_current_is_admin
 from users.models import Users
 from users.services import UserServices
-from users.schemas import SUserRegister, SUserAuth, SAdminRegister, SAdminAuth, SUserUpdate
+from users.schemas import SUserRegister, SUserAuth, SAdminRegister, SAdminAuth, SUserUpdate, SMasterRester
 
 router = APIRouter()
 
@@ -20,7 +20,6 @@ async def register_user(user: SAdminRegister):
         raise UserAlreadyExistsWithThisEmailException
 
     hashed_password = hash_password(user.password)
-
     return await UserServices.create(email=user.email, hashed_password=hashed_password, role="admin")
 
 
@@ -52,19 +51,25 @@ async def logout_user(response: Response):
 
 # region Auth & Users & Master
 @router.post("/user/register", tags=["Auth & Пользователи"], summary="Регистрация пользователя")
-@router.post("/master/register", tags=["Мастера"], summary="Регистрация мастера")
-async def register_user(user: SUserRegister, request: Request):
+async def register_master(user: SUserRegister, request: Request):
     is_user_exist = await UserServices.find_one_or_none(phone=user.phone)
 
     if is_user_exist:
         raise AlreadyExistsException(f"User with {user.phone} already exists")
 
     hashed_password = hash_password(user.password)
+    return await UserServices.create(phone=user.phone, hashed_password=hashed_password, role="user")
 
-    if request.url.path == "/master/register":
-        return await UserServices.create(phone=user.phone, hashed_password=hashed_password, role="master")
-    else:
-        return await UserServices.create(phone=user.phone, hashed_password=hashed_password, role="user")
+
+@router.post("/master/register", tags=["Мастера"], summary="Регистрация мастера")
+async def register_user(user: SMasterRester, request: Request):
+    is_user_exist = await UserServices.find_one_or_none(phone=user.phone)
+
+    if is_user_exist:
+        raise AlreadyExistsException(f"User with {user.phone} already exists")
+
+    hashed_password = hash_password(user.password)
+    return await UserServices.create(phone=user.phone, hashed_password=hashed_password, role="master")
 
 
 @router.post("/user/login", tags=["Auth & Пользователи"], summary="Авторизация пользователя")

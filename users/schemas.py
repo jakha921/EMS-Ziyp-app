@@ -12,6 +12,17 @@ class SAdminAuth(SAdminRegister):
     pass
 
 
+class SMasterRester(BaseModel):
+    last_name: str = Field(..., example="Doe")
+    first_name: str = Field(..., example="John")
+    phone: str = Field(..., example="+998901234567")
+    password: str = Field(..., example="12345678")
+
+
+class SMasterUpdate(BaseModel):
+    pass
+
+
 class SUserRegister(BaseModel):
     phone: str = Field(..., example="+998901234567")
     password: str = Field(..., example="12345678")
@@ -31,6 +42,7 @@ class SUserUpdate(BaseModel):
     city_id: int = Field(None, example=1)
     dob: date = Field(None, example="1990-01-01")
     study_in: str = Field(None, example="TUIT")
+    work_in: str = Field(None, example="TUIT")
     additional_data: str = Field(None, example="Some additional data")
     avatar_url: str = Field(None, example="https://someurl.com")
     balance: int = Field(None, example=1000)

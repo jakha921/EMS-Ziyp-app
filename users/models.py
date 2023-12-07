@@ -21,6 +21,7 @@ class Users(Base):
                                       comment="Static 3 roles as user, admin and master")
     dob: Mapped[date] = mapped_column(nullable=True)
     study_in: Mapped[str] = mapped_column(String(255), nullable=True, comment="Need to add where user is study")
+    work_in: Mapped[str] = mapped_column(String(255), nullable=True, comment="Need to add where user is work")
     additional_data: Mapped[str] = mapped_column(String(4000), nullable=True)
     avatar_url: Mapped[str] = mapped_column(String(1000), nullable=True)
     balance: Mapped[int] = mapped_column(nullable=True, default=0)

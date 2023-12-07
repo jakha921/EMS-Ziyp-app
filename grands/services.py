@@ -5,6 +5,7 @@ from sqlalchemy import select, func, or_
 from sqlalchemy.orm import selectinload
 from sqlalchemy.sql.functions import count
 
+from aws_media.services import change_url
 from config.db import async_session
 from grands.models import Grands
 from base.base_service import BaseServices
@@ -67,6 +68,24 @@ class GrandsServices(BaseServices):
                         'count_applications': item['count_applications']
                     } for item in response
                 ]
+
+                # change url
+                for item in response:
+                    image_field_name = None
+                    if hasattr(cls.model, 'image_urls'):
+                        image_field_name = 'image_urls'
+                    elif hasattr(cls.model, 'images'):
+                        image_field_name = 'images'
+                    elif hasattr(cls.model, 'avatar_url'):
+                        image_field_name = 'avatar_url'
+                    elif hasattr(cls.model, 'image_url'):
+                        image_field_name = 'image_url'
+
+                    if image_field_name and item[image_field_name] is not None:
+                        updated_value = await change_url(item[image_field_name], True)
+                        item[image_field_name] = updated_value
+                    elif image_field_name and item[image_field_name] is None:
+                        item[image_field_name] = []
 
                 # Подсчет количества записей
                 result_count_items = (await session.execute(length_query)).scalar()

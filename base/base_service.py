@@ -47,7 +47,8 @@ class BaseServices:
             item = result.scalars().one_or_none()
             print('item service', item)
 
-            if item or hasattr(cls.model, 'images_urls') or hasattr(cls.model, 'images') or hasattr(cls.model, 'avatar_url'):
+            if item or hasattr(cls.model, 'images_urls') or hasattr(cls.model, 'images') or hasattr(cls.model,
+                                                                                                    'avatar_url'):
                 image_field_name = None
                 if hasattr(cls.model, 'image_urls'):
                     image_field_name = 'image_urls'
@@ -55,6 +56,8 @@ class BaseServices:
                     image_field_name = 'images'
                 elif hasattr(cls.model, 'avatar_url'):
                     image_field_name = 'avatar_url'
+                elif hasattr(cls.model, 'image_url'):
+                    image_field_name = 'image_url'
 
                 print('image_field_name', image_field_name)
                 if item is not None:
@@ -126,6 +129,8 @@ class BaseServices:
                         image_field_name = 'images'
                     elif hasattr(cls.model, 'avatar_url'):
                         image_field_name = 'avatar_url'
+                    elif hasattr(cls.model, 'image_url'):
+                        image_field_name = 'image_url'
 
                     if image_field_name and getattr(item, image_field_name) is not None:
                         updated_value = await change_url(getattr(item, image_field_name), True)
@@ -187,7 +192,8 @@ class BaseServices:
             print('name model', cls.model.__tablename__)
             if cls.model.__tablename__ not in ['application_grands',
                                                'application_event']:
-                return result.mappings().first()[f'{(cls.model.__tablename__).capitalize()}' if cls.model.__tablename__ != 'faqs' else 'FAQs']
+                return result.mappings().first()[
+                    f'{(cls.model.__tablename__).capitalize()}' if cls.model.__tablename__ != 'faqs' else 'FAQs']
             else:
                 model_name = cls.model.__tablename__.split('_')  # ['application', 'grands']
                 model_name = [item.capitalize() for item in model_name]  # ['Application', 'Grands']
@@ -253,7 +259,8 @@ class BaseServices:
             query = delete(cls.model).filter_by(**filter_by).returning(cls.model)
             result = await session.execute(query)
             await session.commit()
-            return result.mappings().first()[f'{(cls.model.__tablename__).capitalize()}' if cls.model.__tablename__ != 'faqs' else 'FAQs']
+            return result.mappings().first()[
+                f'{(cls.model.__tablename__).capitalize()}' if cls.model.__tablename__ != 'faqs' else 'FAQs']
 
     @classmethod
     async def add_bulk(cls, *data):
