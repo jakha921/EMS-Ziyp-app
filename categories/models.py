@@ -11,8 +11,8 @@ class Categories(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name_ru: Mapped[str] = mapped_column(String(255), nullable=False)
-    name_en: Mapped[str] = mapped_column(String(255), nullable=False)
-    name_uz: Mapped[str] = mapped_column(String(255), nullable=False)
+    name_en: Mapped[str] = mapped_column(String(255), nullable=True)
+    name_uz: Mapped[str] = mapped_column(String(255), nullable=True)
     description: Mapped[str] = mapped_column(String(4000), nullable=True)
     created_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)

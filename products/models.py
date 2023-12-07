@@ -11,8 +11,8 @@ class Products(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name_ru: Mapped[str] = mapped_column(String(255), nullable=False)
-    name_en: Mapped[str] = mapped_column(String(255), nullable=False)
-    name_uz: Mapped[str] = mapped_column(String(255), nullable=False)
+    name_en: Mapped[str] = mapped_column(String(255), nullable=True)
+    name_uz: Mapped[str] = mapped_column(String(255), nullable=True)
     price: Mapped[int] = mapped_column(nullable=False)
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"), nullable=False)
     description_ru: Mapped[str] = mapped_column(String(4000), nullable=True)

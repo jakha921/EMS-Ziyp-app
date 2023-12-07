@@ -11,8 +11,8 @@ class Events(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name_ru: Mapped[str] = mapped_column(String(255))
-    name_uz: Mapped[str] = mapped_column(String(255))
-    name_en: Mapped[str] = mapped_column(String(255))
+    name_uz: Mapped[str] = mapped_column(String(255), nullable=True)
+    name_en: Mapped[str] = mapped_column(String(255), nullable=True)
     start_date: Mapped[date]
     start_time: Mapped[time]
     end_date: Mapped[date]
