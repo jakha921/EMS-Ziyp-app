@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -20,6 +20,8 @@ class Grands(Base):
     updated_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
     image_url: Mapped[str] = mapped_column(nullable=True, comment="Image url")
     form_link: Mapped[str] = mapped_column(nullable=True, comment="Link to registration form")
+    from_date: Mapped[date] = mapped_column(nullable=True, comment="grant application deadline")
+    to_date: Mapped[date] = mapped_column(nullable=True, comment="grant application deadline")
 
     application_grands: Mapped["ApplicationGrands"] = relationship("ApplicationGrands", back_populates="grands")
 
