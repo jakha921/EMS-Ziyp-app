@@ -30,17 +30,30 @@ async def s3_upload(contents: bytes, key: str):
 
 async def upload_file(file):
     if not file:
-        raise HTTPException(status_code=400, detail="No file uploaded")
+        raise HTTPException(status_code=400, detail={
+            "status": "error",
+            "detail": "No file uploaded",
+            "data": None
+        })
+
 
     contents = await file.read()
     file_size = len(contents)
 
     if not 0 < file_size < 10 * MB:
-        raise HTTPException(status_code=400, detail="File size is too large or too small (0 < file_size < 10 MB)")
+        raise HTTPException(status_code=400, detail={
+            "status": "error",
+            "detail": f"File size is too large or too small (0 < file_size < 10 MB)",
+            "data": None
+        })
 
     file_type = magic.from_buffer(buffer=contents, mime=True)
     if file_type not in SUPPORTED_FILE_TYPES:
-        raise HTTPException(status_code=400, detail=f"File type {file_type} is not supported")
+        raise HTTPException(status_code=400, detail={
+            "status": "error",
+            "detail": f"File type {file_type} is not supported",
+            "data": None
+        })
 
     # save to S3 bucket with photo
     print("file is ", file.filename.split(".")[0])
