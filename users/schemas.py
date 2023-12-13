@@ -44,7 +44,7 @@ class SUserUpdate(BaseModel):
     study_in: str = Field(None, example="TUIT")
     work_in: str = Field(None, example="TUIT")
     additional_data: str = Field(None, example="Some additional data")
-    avatar_url: str = Field(None, example="https://someurl.com")
+    avatar_url: list = Field(None, example=["https://example.com/1.jpg", "https://example.com/2.jpg"])
     balance: int = Field(None, example=1000)
 
     class Config:

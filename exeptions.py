@@ -2,13 +2,25 @@ from fastapi import HTTPException, status
 
 
 class BookingException(HTTPException):  # <-- наследуемся от HTTPException, который наследован от Exception
+
+    # change response of exception to
+    # raise HTTPException(status_code=400, detail={
+    #     "status": "error",
+    #     "detail": detail,
+    #     "data": str(e) if str(e) else None
+    # })
+
     status_code = 500  # <-- задаем значения по умолчанию
     detail = ""
 
     def __init__(self, detail: str = None):
         if detail is not None:
             self.detail = detail
-        super().__init__(status_code=self.status_code, detail=self.detail)
+        super().__init__(status_code=self.status_code, detail={
+            "status": "error",
+            "detail": self.detail,
+            "data": None
+        })
 
 
 class UserAlreadyExistsWithThisEmailException(BookingException):  # # <-- наследуемся от BookingException
