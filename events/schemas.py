@@ -18,6 +18,7 @@ class SEventCreate(BaseModel):
     is_paid_event: bool
     price: int
     scores: int
+    phone: str = Field(None, max_length=50)
     address_ru: str = Field(None, max_length=255)
     address_uz: str = Field(None, max_length=255)
     address_en: str = Field(None, max_length=255)
@@ -43,6 +44,7 @@ class SEventCreate(BaseModel):
                 "is_paid_event": True,
                 "price": 10000,
                 "scores": 10,
+                "phone": "+998901234567",
                 "address_ru": "Event address",
                 "address_uz": "Event address",
                 "address_en": "Event address",
