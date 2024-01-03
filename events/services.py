@@ -14,7 +14,8 @@ from base.base_service import BaseServices
 
 class EventServices(BaseServices):
     model = Events
-    search_fields = ['name_ru', 'name_en', 'name_uz', 'description_ru', 'description_en', 'description_uz', 'address']
+    search_fields = ['name_ru', 'name_en', 'name_uz', 'description_ru', 'description_en', 'description_uz',
+                     'address_ru', 'address_en', 'address_uz']
     load_relations = ['cities']
 
     @classmethod
