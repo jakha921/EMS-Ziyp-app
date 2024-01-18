@@ -116,6 +116,16 @@ async def get_user_by_id(user_id: int, user: Users = Depends(get_current_user)):
     return await UserServices.find_one_or_none(id=user_id)
 
 
+@router.get("/user/{phone}", tags=["Auth & Пользователи"], summary="Получить пользователя по phone")
+async def get_user_by_id(phone: str):
+    user = await UserServices.find_one_or_none(phone=phone)
+    return {
+        "id": user.id,
+        "phone": user.phone,
+        "role": user.role
+    }
+
+
 @router.patch("/user/{user_id}", tags=["Auth & Пользователи"], summary="Обновить пользователя по id")
 async def update_user_by_id(user_id: int, update_user: SUserUpdate, user: Users = Depends(get_current_user)):
     print('id', user_id, update_user.dict())
