@@ -24,4 +24,4 @@ class Orders(Base):
     products: Mapped["Products"] = relationship("Products", back_populates="orders")
 
     def __repr__(self):
-        return f"<Order {self.user_id.las_name} - {self.product_id.name_ru}>"
+        return f"<Order {self.id}>"

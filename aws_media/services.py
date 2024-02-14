@@ -5,8 +5,8 @@ from fastapi import HTTPException
 # region AWS S3
 # create a session with AWS using boto3 library in IAM user
 session = boto3.Session(
-    aws_access_key_id="AKIAQLSZYWF72GE6SHWL",
-    aws_secret_access_key="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",
+    aws_access_key_id="AKIAQLSZYWF7YXAOGG6Y",
+    aws_secret_access_key="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",
 )
 
 KB = 1024
@@ -35,7 +35,6 @@ async def upload_file(file):
             "detail": "No file uploaded",
             "data": None
         })
-
 
     contents = await file.read()
     file_size = len(contents)

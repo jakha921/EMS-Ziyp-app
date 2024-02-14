@@ -29,8 +29,8 @@ class UserAlreadyExistsWithThisEmailException(BookingException):  # # <-- нас
 
 
 class UserNotFoundException(BookingException):
-    status_code = status.HTTP_404_NOT_FOUND
-    detail = "User not found"
+    status_code = status.HTTP_401_UNAUTHORIZED
+    detail = "Invalid username or password"
 
     def __init__(self, detail: str = None):
         super().__init__(detail=detail)

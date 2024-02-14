@@ -1,6 +1,7 @@
 from datetime import date
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
+from starlette import status
 
 from events.services import EventServices
 from events.schemas import SEventCreate, SEventUpdate
@@ -37,19 +38,23 @@ async def get_event_by_id(event_id: int, user: Users = Depends(get_current_user)
 @router.post("", summary="Создать событие")
 async def create_event(event: SEventCreate, user: Users = Depends(get_current_user)):
     try:
-        if event.start_date < date.today():
-            return {
-                "status": "error",
-                "detail": f"Дата начала события не может быть меньше текущей даты",
-                "data": None
-            }
+        # if event.start_date < date.today():
+        #     raise ValueError(
+        #         status.HTTP_400_BAD_REQUEST,
+        #         {
+        #             "status": "error",
+        #             "detail": f"Дата начала события не может быть меньше текущей даты",
+        #             "data": None
+        #         }
+        #     )
         return await EventServices.create(**event.dict())
     except Exception as e:
-        return {
+        raise HTTPException(status_code=400, detail={
             "status": "error",
-            "detail": f"Событие не создано",
-            "data": str(e) if str(e) else None
+            "detail": f"Ошибка при создании события: {e}",
+            "data": None
         }
+                            )
 
 
 @router.patch("/{event_id}", summary="Обновить событие по id")

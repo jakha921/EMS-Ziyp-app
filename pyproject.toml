@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "fastapitutorial"
+name = "ems-ziyo-api"
 version = "0.1.0"
 description = ""
 authors = ["jakha921 <jakha921@gmail.com>"]
@@ -12,6 +12,10 @@ greenlet = "^3.0.1"
 passlib = "^1.7.4"
 bcrypt = "^4.0.1"
 pyjwt = "^2.8.0"
+gunicorn = "^21.2.0"
+sqlalchemy = "^2.0.23"
+python-magic = "^0.4.27"
+firebase-admin = "^6.3.0"
 
 
 [build-system]

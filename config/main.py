@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request, status
-from fastapi.exceptions import ValidationError
+from fastapi.exceptions import ValidationError, RequestValidationError
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -17,6 +17,7 @@ from application_grands.routers import router as application_grands_router
 from news.routers import router as news_router
 from faqs.routers import router as faqs_router
 from aws_media.routers import router as aws_media_router
+from notification.sms_notification import router as sms_notification_router
 
 app = FastAPI(
     title="EMS API",
@@ -51,6 +52,21 @@ async def validation_exception_handler(request: Request, exc: ValidationError):
     )
 
 
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    # Get the original 'detail' list of errors
+    details = exc.errors()
+
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content=jsonable_encoder({
+            "status": "error",
+            "detail": details[0]['msg'],
+            "data": None
+        }),
+    )
+
+
 # register routers
 routers = [
     aws_media_router,
@@ -65,7 +81,8 @@ routers = [
     grands_router,
     application_grands_router,
     news_router,
-    faqs_router
+    faqs_router,
+    sms_notification_router
 ]
 
 for router in routers:

@@ -2,7 +2,7 @@ import math
 
 from fastapi import HTTPException
 from sqlalchemy import select, insert, delete, or_
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from sqlalchemy.orm import selectinload
 from sqlalchemy.sql.functions import count
 
@@ -256,11 +256,18 @@ class BaseServices:
             if not model:
                 raise NotFoundException(f"{(cls.model.__tablename__).capitalize()} not found")
 
-            query = delete(cls.model).filter_by(**filter_by).returning(cls.model)
-            result = await session.execute(query)
-            await session.commit()
-            return result.mappings().first()[
-                f'{(cls.model.__tablename__).capitalize()}' if cls.model.__tablename__ != 'faqs' else 'FAQs']
+            try:
+                query = delete(cls.model).filter_by(**filter_by).returning(cls.model)
+                result = await session.execute(query)
+                await session.commit()
+                return result.mappings().first()[
+                    f'{(cls.model.__tablename__).capitalize()}' if cls.model.__tablename__ != 'faqs' else 'FAQs']
+            except IntegrityError as e:
+                await session.rollback()
+                raise AlreadyExistsException("Deletion failed due to protected data integrity constraint.") from e
+            except Exception as e:
+                await session.rollback()
+                raise AlreadyExistsException("Deletion failed due to an unexpected error.") from e
 
     @classmethod
     async def add_bulk(cls, *data):

@@ -5,7 +5,8 @@ from users.auth import hash_password, authenticate_user, create_access_token
 from users.dependencies import get_current_user, get_current_is_admin
 from users.models import Users
 from users.services import UserServices
-from users.schemas import SUserRegister, SUserAuth, SAdminRegister, SAdminAuth, SUserUpdate, SMasterRester
+from users.schemas import SUserRegister, SUserAuth, SAdminRegister, SAdminAuth, SUserUpdate, SMasterRester, \
+    SUserSocialRegister, SUserSocialAuth
 
 router = APIRouter()
 
@@ -33,7 +34,7 @@ async def login_user(response: Response, user: SAdminAuth):
     token = create_access_token({"sub": str(user.id)})
 
     # set cookie
-    response.set_cookie(key="access_token", value=token, httponly=True)
+    # response.set_cookie(key="access_token", value=token, httponly=True)
 
     # remove password from response
     user.hashed_password = None
@@ -58,7 +59,20 @@ async def register_master(user: SUserRegister, request: Request):
         raise AlreadyExistsException(f"User with {user.phone} already exists")
 
     hashed_password = hash_password(user.password)
-    return await UserServices.create(phone=user.phone, hashed_password=hashed_password, role="user")
+    user = await UserServices.create(phone=user.phone, hashed_password=hashed_password, role="user")
+    return user, {'access_token': create_access_token({"sub": str(user.id)})}
+
+
+@router.post("/user/social/register", tags=["Auth & Пользователи"], summary="Регистрация пользователя через соц. сети")
+async def register_user_social(user: SUserSocialRegister):
+    is_user_exist = await UserServices.find_one_or_none(email=user.email)
+
+    if is_user_exist:
+        raise UserAlreadyExistsWithThisEmailException
+
+    hashed_password = hash_password(user.password)
+    user = await UserServices.create(email=user.email, hashed_password=hashed_password, role="user")
+    return user, {'access_token': create_access_token({"sub": str(user.id)})}
 
 
 @router.post("/master/register", tags=["Мастера"], summary="Регистрация мастера")
@@ -83,16 +97,24 @@ async def login_user(response: Response, user: SUserAuth):
     token = create_access_token({"sub": str(user.id)})
 
     # set cookie
-    response.set_cookie(key="access_token", value=token, httponly=True)
+    # response.set_cookie(key="access_token", value=token, httponly=True)
 
     return {"access_token": token, "token_type": "bearer", "data": user}
 
 
-@router.post("/user/logout", tags=["Auth & Пользователи"], summary="Выход пользователя")
-@router.post("/master/logout", tags=["Мастера"], summary="Выход мастера")
-async def logout_user(response: Response):
-    response.delete_cookie(key="access_token")
-    return {"message": "Logout successful"}
+@router.post("/user/social/login", tags=["Auth & Пользователи"], summary="Авторизация пользователя через соц. сети")
+async def login_user_social(response: Response, user: SUserSocialAuth):
+    user = await authenticate_user(email=user.email, password=user.password)
+    if not user:
+        raise UserNotFoundException
+
+    # create access token
+    token = create_access_token({"sub": str(user.id)})
+
+    # set cookie
+    # response.set_cookie(key="access_token", value=token, httponly=True)
+
+    return {"access_token": token, "token_type": "bearer", "data": user}
 
 
 @router.get("/user/me", tags=["Auth & Пользователи"], summary="Получить данные текущего пользователя")
@@ -100,25 +122,12 @@ async def get_me(user: Users = Depends(get_current_user)):
     return user
 
 
-# CRUD
-@router.get("/user/all", tags=["Auth & Пользователи"], summary="Получить всех пользователей")
-async def get_all_users(user: Users = Depends(get_current_is_admin),
-                        role: str = None,  # "admin", "user", "master"
-                        page: int = None,
-                        limit: int = None,
-                        search: str = None,
-                        ):
-    return await UserServices.find_all(limit=limit, offset=page, search=search, role=role)
-
-
-@router.get("/user/{user_id}", tags=["Auth & Пользователи"], summary="Получить пользователя по id")
-async def get_user_by_id(user_id: int, user: Users = Depends(get_current_user)):
-    return await UserServices.find_one_or_none(id=user_id)
-
-
-@router.get("/user/{phone}", tags=["Auth & Пользователи"], summary="Получить пользователя по phone")
-async def get_user_by_id(phone: str):
+@router.post("/user/{phone}", tags=["Auth & Пользователи"], summary="Получить пользователя по телефону")
+async def get_user_by_phone(phone: str):
     user = await UserServices.find_one_or_none(phone=phone)
+    print('user ', user)
+    if not user:
+        raise UserNotFoundException
     return {
         "id": user.id,
         "phone": user.phone,
@@ -126,8 +135,25 @@ async def get_user_by_id(phone: str):
     }
 
 
+# CRUD
+@router.get("/user/all", tags=["Auth & Пользователи"], summary="Получить всех пользователей")
+async def get_all_users(
+        role: str = None,  # "admin", "user", "master"
+        page: int = None,
+        limit: int = None,
+        search: str = None,
+        email: str = None,
+):
+    return await UserServices.find_all(limit=limit, offset=page, search=search, role=role, email=email)
+
+
+@router.get("/user/{user_id}", tags=["Auth & Пользователи"], summary="Получить пользователя по id")
+async def get_user_by_id(user_id: int, user: Users = Depends(get_current_user)):
+    return await UserServices.find_one_or_none(id=user_id)
+
+
 @router.patch("/user/{user_id}", tags=["Auth & Пользователи"], summary="Обновить пользователя по id")
-async def update_user_by_id(user_id: int, update_user: SUserUpdate, user: Users = Depends(get_current_user)):
+async def update_user_by_id(user_id: int, update_user: SUserUpdate):
     print('id', user_id, update_user.dict())
     return await UserServices.update(id=user_id, **update_user.dict())
 
@@ -135,4 +161,10 @@ async def update_user_by_id(user_id: int, update_user: SUserUpdate, user: Users 
 @router.delete("/user/{user_id}", tags=["Auth & Пользователи"], summary="Удалить пользователя по id")
 async def delete_user_by_id(user_id: int, user: Users = Depends(get_current_user)):
     return await UserServices.delete(id=user_id)
+
+
+@router.patch("/user/{user_id}/{device_token}", tags=["Auth & Пользователи"], summary="Обновить divece_token")
+async def update_user_by_id(user_id: int, device_token: str):
+    return await UserServices.update(id=user_id, device_token=device_token)
+
 # endregion

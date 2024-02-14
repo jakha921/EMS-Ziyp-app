@@ -1,12 +1,37 @@
 from datetime import date
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, ValidationError
+
+
+class SAdminRegisterResponse(BaseModel):
+    status: str
+    detail: str
+    data: dict = None
 
 
 class SAdminRegister(BaseModel):
     email: EmailStr = Field(..., example="admin@gmail.com")
     password: str = Field(..., example="12345678")
 
+    class Config:
+        @staticmethod
+        def schema_extra(schema, model):
+            schema.update(
+                {
+                    "error_messages": {
+                        "required": "Missing data for required field.",
+                        "type_error": "Invalid data type.",
+                        "value_error.email": "Invalid email format.",
+                    }
+                }
+            )
+
+try:
+    data = {"email": "notanemail", "password": "123"}
+    SAdminRegister(**data)
+except ValidationError as e:
+    error_messages = {"status": "error", "detail": str(e), "data": None}
+    print(error_messages)
 
 class SAdminAuth(SAdminRegister):
     pass
@@ -26,9 +51,20 @@ class SMasterUpdate(BaseModel):
 class SUserRegister(BaseModel):
     phone: str = Field(..., example="+998901234567")
     password: str = Field(..., example="12345678")
+    device_token: str = Field(None, example="12345678")
 
 
 class SUserAuth(SUserRegister):
+    pass
+
+
+class SUserSocialRegister(BaseModel):
+    email: EmailStr = Field(..., example="user@gmail.com")
+    password: str = Field(..., example="12345678")
+    device_token: str = Field(None, example="12345678")
+
+
+class SUserSocialAuth(SUserSocialRegister):
     pass
 
 

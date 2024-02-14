@@ -25,6 +25,8 @@ class Users(Base):
     additional_data: Mapped[str] = mapped_column(String(4000), nullable=True)
     avatar_url: Mapped[str] = mapped_column(String(1000), nullable=True)
     balance: Mapped[int] = mapped_column(nullable=True, default=0)
+    device_token: Mapped[str] = mapped_column(String(255), nullable=True,
+                                              comment="Device token for push notifications used by firebase")
     registered_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.utcnow())
     updated_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.utcnow(), onupdate=datetime.utcnow())
 
