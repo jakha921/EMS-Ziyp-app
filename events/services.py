@@ -2,7 +2,7 @@ import math
 from datetime import datetime
 
 from fastapi import HTTPException
-from sqlalchemy import or_, select
+from sqlalchemy import or_, select, insert
 from sqlalchemy.orm import selectinload, outerjoin
 from sqlalchemy.sql.functions import count, func
 
@@ -110,3 +110,58 @@ class EventServices(BaseServices):
                 "detail": f"{cls.model.__tablename__} not retrieved",
                 "data": str(e) if str(e) else None
             })
+
+    @classmethod
+    async def create(cls, **data):
+        """Создать model"""
+        # try:
+
+        # get image field name and change url to string
+        image_field_name = None
+        if hasattr(cls.model, 'image_urls'):
+            image_field_name = 'image_urls'
+        elif hasattr(cls.model, 'images'):
+            image_field_name = 'images'
+        elif hasattr(cls.model, 'avatar_url'):
+            image_field_name = 'avatar_url'
+        elif hasattr(cls.model, 'image_url'):
+            image_field_name = 'image_url'
+
+        print('image_field_name', image_field_name)
+        if image_field_name and data.get(image_field_name) is not None:
+            data[image_field_name] = await change_url(data[image_field_name], to_list=False)
+        elif image_field_name and data.get(image_field_name) is None:
+            data[image_field_name] = ''
+
+        query = insert(cls.model).values(**data).returning(cls.model)
+        async with async_session() as session:
+            result = await session.execute(query)
+            await session.commit()
+            print('name model', cls.model.__tablename__)
+            if cls.model.__tablename__ not in ['application_grands',
+                                               'application_event']:
+                return result.mappings().first()[
+                    f'{(cls.model.__tablename__).capitalize()}' if cls.model.__tablename__ != 'faqs' else 'FAQs']
+            else:
+                model_name = cls.model.__tablename__.split('_')  # ['application', 'grands']
+                model_name = [item.capitalize() for item in model_name]  # ['Application', 'Grands']
+                model_name = ''.join(model_name)  # 'ApplicationGrands'
+
+                # change url to list
+                if image_field_name and result.mappings().first()[f'{model_name}'].get(image_field_name) is not None:
+                    updated_value = await change_url(result.mappings().first()[f'{model_name}'].get(image_field_name),
+                                                     True)
+                    result.mappings().first()[f'{model_name}'][image_field_name] = updated_value
+                elif image_field_name and result.mappings().first()[f'{model_name}'].get(image_field_name) is None:
+                    result.mappings().first()[f'{model_name}'][image_field_name] = []
+
+                return result.mappings().first()[f'{model_name}']
+            # except (SQLAlchemyError, Exception) as e:
+        #     if isinstance(e, SQLAlchemyError):
+        #         msg = "Database Exc: Cannot insert data into table"
+        #     elif isinstance(e, Exception):
+        #         msg = "Unknown Exc: Cannot insert data into table"
+        #
+        #     # logger.error(msg, extra={"table": cls.model.__tablename__}, exc_info=True)
+        #     print('error', msg, e)
+        #     return None

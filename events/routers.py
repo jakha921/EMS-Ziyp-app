@@ -38,16 +38,16 @@ async def get_event_by_id(event_id: int, user: Users = Depends(get_current_user)
 @router.post("", summary="Создать событие")
 async def create_event(event: SEventCreate, user: Users = Depends(get_current_user)):
     try:
-        # if event.start_date < date.today():
-        #     raise ValueError(
-        #         status.HTTP_400_BAD_REQUEST,
-        #         {
-        #             "status": "error",
-        #             "detail": f"Дата начала события не может быть меньше текущей даты",
-        #             "data": None
-        #         }
-        #     )
+        if event.start_date < date.today():
+            raise ValueError("Дата начала события не может быть раньше сегодняшней даты")
         return await EventServices.create(**event.dict())
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail={
+            "status": "error",
+            "detail": f"{e}",
+            "data": None
+        }
+                            )
     except Exception as e:
         raise HTTPException(status_code=400, detail={
             "status": "error",
