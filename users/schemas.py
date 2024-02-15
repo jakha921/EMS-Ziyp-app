@@ -16,8 +16,9 @@ class SAdminRegister(BaseModel):
     first_name: str = Field(None, example="John")
 
 
-class SAdminAuth(SAdminRegister):
-    pass
+class SAdminAuth(BaseModel):
+    email: EmailStr = Field(..., example="admin@gmail.com")
+    password: str = Field(..., example="12345678")
 
 
 class SMasterRester(BaseModel):
