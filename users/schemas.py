@@ -12,34 +12,17 @@ class SAdminRegisterResponse(BaseModel):
 class SAdminRegister(BaseModel):
     email: EmailStr = Field(..., example="admin@gmail.com")
     password: str = Field(..., example="12345678")
+    last_name: str = Field(None, example="Doe")
+    first_name: str = Field(None, example="John")
 
-    class Config:
-        @staticmethod
-        def schema_extra(schema, model):
-            schema.update(
-                {
-                    "error_messages": {
-                        "required": "Missing data for required field.",
-                        "type_error": "Invalid data type.",
-                        "value_error.email": "Invalid email format.",
-                    }
-                }
-            )
-
-try:
-    data = {"email": "notanemail", "password": "123"}
-    SAdminRegister(**data)
-except ValidationError as e:
-    error_messages = {"status": "error", "detail": str(e), "data": None}
-    print(error_messages)
 
 class SAdminAuth(SAdminRegister):
     pass
 
 
 class SMasterRester(BaseModel):
-    last_name: str = Field(..., example="Doe")
-    first_name: str = Field(..., example="John")
+    last_name: str = Field(None, example="Doe")
+    first_name: str = Field(None, example="John")
     phone: str = Field(..., example="+998901234567")
     password: str = Field(..., example="12345678")
 

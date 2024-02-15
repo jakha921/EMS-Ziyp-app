@@ -21,7 +21,16 @@ async def register_user(user: SAdminRegister):
         raise UserAlreadyExistsWithThisEmailException
 
     hashed_password = hash_password(user.password)
-    return await UserServices.create(email=user.email, hashed_password=hashed_password, role="admin")
+
+    user = {
+        "email": user.email,
+        "hashed_password": hashed_password,
+        "role": "admin",
+        "first_name": user.first_name if user.first_name else None,
+        "last_name": user.last_name if user.last_name else None,
+    }
+
+    return await UserServices.create(**user)
 
 
 @router.post("/admin/login", tags=["Администраторы"], summary="Авторизация администратора")
@@ -42,10 +51,10 @@ async def login_user(response: Response, user: SAdminAuth):
     return {"access_token": token, "token_type": "bearer", "data": user}
 
 
-@router.post("/admin/logout", tags=["Администраторы"], summary="Выход администратора")
-async def logout_user(response: Response):
-    response.delete_cookie(key="access_token")
-    return {"message": "Logout successful"}
+# @router.post("/admin/logout", tags=["Администраторы"], summary="Выход администратора")
+# async def logout_user(response: Response):
+#     response.delete_cookie(key="access_token")
+#     return {"message": "Logout successful"}
 
 
 # endregion
@@ -83,7 +92,16 @@ async def register_user(user: SMasterRester, request: Request):
         raise AlreadyExistsException(f"User with {user.phone} already exists")
 
     hashed_password = hash_password(user.password)
-    return await UserServices.create(phone=user.phone, hashed_password=hashed_password, role="master")
+
+    user = {
+        "phone": user.phone,
+        "hashed_password": hashed_password,
+        "role": "master",
+        "first_name": user.first_name if user.first_name else None,
+        "last_name": user.last_name if user.last_name else None,
+    }
+
+    return await UserServices.create(**user)
 
 
 @router.post("/user/login", tags=["Auth & Пользователи"], summary="Авторизация пользователя")
