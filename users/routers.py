@@ -172,7 +172,17 @@ async def get_user_by_id(user_id: int, user: Users = Depends(get_current_user)):
 
 @router.patch("/user/{user_id}", tags=["Auth & Пользователи"], summary="Обновить пользователя по id")
 async def update_user_by_id(user_id: int, update_user: SUserUpdate):
-    print('id', user_id, update_user.dict())
+    # print('id', user_id, update_user.dict())
+    if update_user.phone:
+        is_user_exist = await UserServices.find_one_or_none(phone=update_user.phone)
+        if is_user_exist and is_user_exist.id != user_id:
+            raise AlreadyExistsException(f"User with {update_user.phone} already exists")
+
+    if update_user.email:
+        is_user_exist = await UserServices.find_one_or_none(email=update_user.email)
+        if is_user_exist and is_user_exist.id != user_id:
+            raise UserAlreadyExistsWithThisEmailException
+
     return await UserServices.update(id=user_id, **update_user.dict())
 
 

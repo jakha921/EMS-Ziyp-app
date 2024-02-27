@@ -29,6 +29,8 @@ class Users(Base):
                                               comment="Device token for push notifications used by firebase")
     registered_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.utcnow())
     updated_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.utcnow(), onupdate=datetime.utcnow())
+    is_completed_profile: Mapped[bool] = mapped_column(nullable=True, default=False,
+                                                       comment="If user completed profile or not")
 
     # relationships
     cities: Mapped["Cities"] = relationship("Cities", back_populates="users")
