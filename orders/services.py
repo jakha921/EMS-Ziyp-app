@@ -2,6 +2,7 @@ from sqlalchemy import insert, select, delete, update
 
 from config.db import async_session
 from exeptions import AlreadyExistsException, NotFoundException
+from notification.firebase_notification import send_push_notification
 from orders.models import Orders
 from base.base_service import BaseServices
 from products.models import Products
@@ -34,7 +35,9 @@ class OrderServices(BaseServices):
 
             user = await session.execute(
                 select(Users).filter_by(id=data.get('user_id')))
-            user_balance = user.scalars().first().balance
+            user = user.scalars().first()
+
+            user_balance = user.balance
 
             print('event', product_price, 'user', user_balance)
             if user_balance < product_price:
@@ -47,10 +50,16 @@ class OrderServices(BaseServices):
 
             print('user', user_balance)
 
+            # send push notification
+            await send_push_notification(
+                token=user.device_token,
+                title="Заказ",
+                body=f"Ваш заказ успешно оформлен!\nC вашего баланса списано {product_price} YC"
+            )
+
             query = insert(cls.model).values(**data).returning(cls.model)
             result = await session.execute(query)
             await session.commit()
-
 
             await session.commit()
             return result.mappings().first()[f'{(cls.model.__tablename__).capitalize()}']
@@ -70,11 +79,21 @@ class OrderServices(BaseServices):
             product_price = product.scalars().first().price
             user = await session.execute(
                 select(Users).filter_by(id=model.user_id))
-            user_balance = user.scalars().first().balance
+            user = user.scalars().first()
+
+            user_balance = user.balance
+
             user_balance += product_price
             # apply changes to user balance
             await session.execute(
                 update(Users).where(Users.id == model.user_id).values(balance=user_balance))
+
+            # send push notification
+            await send_push_notification(
+                token=user.device_token,
+                title="Заказ",
+                body=f"Ваш заказ отменен!\nНа ваш баланс зачислено {product_price} YC"
+            )
 
             query = delete(cls.model).filter_by(**filter_by).returning(cls.model)
             result = await session.execute(query)

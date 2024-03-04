@@ -2,6 +2,7 @@ from sqlalchemy import select
 
 from aws_media.services import change_url
 from config.db import async_session
+from notification.firebase_notification import send_push_notification
 from users.models import Users
 from base.base_service import BaseServices
 
@@ -51,6 +52,11 @@ class UserServices(BaseServices):
             if not fields and not model.is_completed_profile:
                 model.balance += 200
                 model.is_completed_profile = True
+                status = await send_push_notification(
+                    token=model.device_token,
+                    title="Поздравляем!",
+                    body="Вы успешно прошли регистрацию и получили 200 YC на баланс!"
+                )
             await session.commit()
 
             return model

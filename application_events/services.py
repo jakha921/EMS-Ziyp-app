@@ -6,6 +6,7 @@ from aws_media.services import change_url
 from base.base_service import BaseServices
 from events.models import Events
 from exeptions import AlreadyExistsException
+from notification.firebase_notification import send_push_notification
 from users.models import Users
 
 
@@ -50,7 +51,6 @@ class ApplicationEventServices(BaseServices):
                         # update balance
                         user.balance -= event.price
 
-
             query = insert(cls.model).values(**data).returning(cls.model)
             result = await session.execute(query)
             await session.commit()
@@ -74,37 +74,34 @@ class ApplicationEventServices(BaseServices):
             result = await session.execute(db_model)
             model = result.scalars().first()
 
-            # get image field name and change url to string
-            image_field_name = None
-            if hasattr(cls.model, 'image_urls'):
-                image_field_name = 'image_urls'
-            elif hasattr(cls.model, 'images'):
-                image_field_name = 'images'
-            elif hasattr(cls.model, 'avatar_url'):
-                image_field_name = 'avatar_url'
-
-            if image_field_name and data.get(image_field_name) is not None:
-                data[image_field_name] = await change_url(data[image_field_name], to_list=False)
-            elif image_field_name and data.get(image_field_name) is None:
-                data[image_field_name] = ''
-
             if data.get('status') == 'approved':
                 # get by id event and update balance
                 # SELECT * FROM events WHERE events.id = 1
+
                 event = await session.execute(
-                    select(Events).filter_by(id=cls.model.event_id)
+                    select(Events).filter_by(id=model.event_id)
                 )
                 event = event.scalars().first()
 
                 if event.scores > 0:
                     # get by id user and update balance
                     user = await session.execute(
-                        select(Users).filter_by(id=cls.model.user_id)
+                        select(Users).filter_by(id=model.user_id)
                     )
                     user = user.scalars().first()
 
                     # update balance
+                    print('user', user.id)
+                    print('user.balance', user.balance)
                     user.balance += event.scores
+                    print('user.balance', user.balance)
+
+                    # send notification
+                    await send_push_notification(
+                        token=user.device_token,
+                        title="Поздравляем!",
+                        body=f"Вы успешно прошли регистрацию на мероприятие {event.name_ru} и получили {event.scores} YC на баланс!"
+                    )
 
             for key, value in data.items():
                 if value:
