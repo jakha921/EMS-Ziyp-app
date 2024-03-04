@@ -234,6 +234,8 @@ class BaseServices:
                 image_field_name = 'images'
             elif hasattr(cls.model, 'avatar_url'):
                 image_field_name = 'avatar_url'
+            elif hasattr(cls.model, 'image_url'):
+                image_field_name = 'image_url'
 
             if image_field_name and data.get(image_field_name) is not None:
                 data[image_field_name] = await change_url(data[image_field_name], to_list=False)
