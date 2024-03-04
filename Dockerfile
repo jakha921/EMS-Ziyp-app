@@ -23,4 +23,4 @@ RUN alembic upgrade head
 
 # run app
 # CMD gunicorn config.main:app --workers 1 --worker-class uvicorn.workers.UvicornWorker --bind=0.0.0.0:8000
-CMD ["gunicorn", "config.main:app", "--workers", "1", "--worker-class", "uvicorn.workers.UvicornWorker", "--bind=0.0.0.0:8000"]
+CMD ["gunicorn", "config.main:app", "--workers", "3", "--worker-class", "uvicorn.workers.UvicornWorker", "--bind=0.0.0.0:8000"]
