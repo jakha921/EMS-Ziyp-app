@@ -162,12 +162,12 @@ async def get_all_users(
         search: str = None,
         email: str = None,
 ):
-    return await UserServices.find_all(limit=limit, offset=page, search=search, role=role, email=email)
+    return await UserServices.find_all(limit=limit, offset=page, search=search, role=role, email=email, deleted_at=None)
 
 
 @router.get("/user/{user_id}", tags=["Auth & Пользователи"], summary="Получить пользователя по id")
 async def get_user_by_id(user_id: int, user: Users = Depends(get_current_user)):
-    return await UserServices.find_one_or_none(id=user_id)
+    return await UserServices.find_one_or_none(id=user_id, deleted_at=None)
 
 
 @router.patch("/user/{user_id}", tags=["Auth & Пользователи"], summary="Обновить пользователя по id")
