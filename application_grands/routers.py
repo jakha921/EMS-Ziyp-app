@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 
 from application_grands.services import ApplicationGrandsServices
 from application_grands.schemas import SApplicationGrandCreate, SApplicationGrandUpdate
+from exeptions import AlreadyExistsException
 from users.dependencies import get_current_user
 from users.models import Users
 
@@ -28,6 +29,10 @@ async def get_grand_by_id(grand_id: int, user: Users = Depends(get_current_user)
 
 @router.post("", summary="Создать заявку на грант")
 async def create_grand(grand: SApplicationGrandCreate, user: Users = Depends(get_current_user)):
+    is_user_exist = await ApplicationGrandsServices.find_one_or_none(user_id=user.id)
+    if is_user_exist:
+        raise AlreadyExistsException("User already send application for grand")
+
     return await ApplicationGrandsServices.create(**grand.dict())
 
 
