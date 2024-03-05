@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from sqlalchemy import String, ForeignKey, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -15,8 +15,9 @@ class ApplicationGrands(Base):
     status: Mapped[str] = mapped_column(Enum("pending", "approved", "rejected", name="status"), nullable=False,
                                         default="pending")
     description: Mapped[str] = mapped_column(String(4000), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(nullable=False, default=(datetime.utcnow() + timedelta(hours=5)))
+    updated_at: Mapped[datetime] = mapped_column(nullable=False, default=(datetime.utcnow() + timedelta(hours=5)),
+                                                 onupdate=(datetime.utcnow() + timedelta(hours=5)))
 
     users: Mapped["Users"] = relationship("Users", back_populates="application_grands")
     grands: Mapped["Grands"] = relationship("Grands", back_populates="application_grands")

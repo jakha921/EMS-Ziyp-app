@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 from sqlalchemy import String, ForeignKey, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -27,8 +27,10 @@ class Users(Base):
     balance: Mapped[int] = mapped_column(nullable=True, default=0)
     device_token: Mapped[str] = mapped_column(String(255), nullable=True,
                                               comment="Device token for push notifications used by firebase")
-    registered_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.utcnow())
-    updated_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.utcnow(), onupdate=datetime.utcnow())
+    # set time for created_at and updated_at columns +5 hours
+    registered_at: Mapped[datetime] = mapped_column(nullable=False, default=(datetime.utcnow() + timedelta(hours=5)))
+    updated_at: Mapped[datetime] = mapped_column(nullable=False, default=(datetime.utcnow() + timedelta(hours=5)),
+                                                 onupdate=(datetime.utcnow() + timedelta(hours=5)))
     deleted_at: Mapped[datetime] = mapped_column(nullable=True)
     is_completed_profile: Mapped[bool] = mapped_column(nullable=True, default=False,
                                                        comment="If user completed profile or not")

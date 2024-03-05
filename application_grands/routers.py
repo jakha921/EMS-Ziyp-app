@@ -29,7 +29,7 @@ async def get_grand_by_id(grand_id: int, user: Users = Depends(get_current_user)
 
 @router.post("", summary="Создать заявку на грант")
 async def create_grand(grand: SApplicationGrandCreate, user: Users = Depends(get_current_user)):
-    is_user_exist = await ApplicationGrandsServices.find_one_or_none(user_id=user.id)
+    is_user_exist = await ApplicationGrandsServices.find_one_or_none(user_id=grand.user_id, grand_id=grand.grand_id)
     if is_user_exist:
         raise AlreadyExistsException("User already send application for grand")
 

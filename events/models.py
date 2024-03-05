@@ -1,7 +1,7 @@
 from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from datetime import datetime, date, time
+from datetime import datetime, date, time, timedelta
 
 from config.db import Base
 
@@ -30,8 +30,9 @@ class Events(Base):
     description_ru: Mapped[str] = mapped_column(String(4000), nullable=True)
     description_en: Mapped[str] = mapped_column(String(4000), nullable=True)
     description_uz: Mapped[str] = mapped_column(String(4000), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(nullable=False, default=(datetime.utcnow() + timedelta(hours=5)))
+    updated_at: Mapped[datetime] = mapped_column(nullable=False, default=(datetime.utcnow() + timedelta(hours=5)),
+                                                 onupdate=(datetime.utcnow() + timedelta(hours=5)))
 
     # relationships
     cities: Mapped["Cities"] = relationship("Cities", back_populates="events")

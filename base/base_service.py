@@ -70,12 +70,16 @@ class BaseServices:
             return item
 
     @classmethod
-    async def find_all(cls, limit: int = None, offset: int = None, search: str = None, **kwargs):
+    async def find_all(cls, limit: int = None, offset: int = None, search: str = None, **filters):
         """Получить все model по фильтру"""
         try:
             async with async_session() as session:
                 # Поиск по фильтру kwargs = {"id": 1, "name": "test"} -> WHERE id=1 AND name="test"
-                kwargs = {key: value for key, value in kwargs.items() if value is not None}
+
+                kwargs = {key: value for key, value in filters.items() if value is not None}
+                if 'deleted_at' in filters.keys():
+                    kwargs['deleted_at'] = None
+
                 query = select(cls.model).filter_by(**kwargs)
                 length_query = select(count(cls.model.id)).filter_by(**kwargs)
 

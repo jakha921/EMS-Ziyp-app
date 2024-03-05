@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -11,8 +11,9 @@ class Volunteers(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow())
-    updated_at: Mapped[datetime] = mapped_column(default=datetime.utcnow(), onupdate=datetime.utcnow())
+    created_at: Mapped[datetime] = mapped_column(default=(datetime.utcnow() + timedelta(hours=5)))
+    updated_at: Mapped[datetime] = mapped_column(default=(datetime.utcnow() + timedelta(hours=5)),
+                                                 onupdate=(datetime.utcnow() + timedelta(hours=5)))
 
     # relationships
     users: Mapped["Users"] = relationship("Users", back_populates="volunteers")

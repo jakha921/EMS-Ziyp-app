@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -16,8 +16,9 @@ class Grands(Base):
     description_ru: Mapped[str] = mapped_column(String(4000), nullable=True)
     description_en: Mapped[str] = mapped_column(String(4000), nullable=True)
     description_uz: Mapped[str] = mapped_column(String(4000), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(nullable=False, default=(datetime.utcnow() + timedelta(hours=5)))
+    updated_at: Mapped[datetime] = mapped_column(nullable=False, default=(datetime.utcnow() + timedelta(hours=5)),
+                                                 onupdate=(datetime.utcnow() + timedelta(hours=5)))
     image_url: Mapped[str] = mapped_column(nullable=True, comment="Image url")
     form_link: Mapped[str] = mapped_column(nullable=True, comment="Link to registration form")
     from_date: Mapped[date] = mapped_column(nullable=True, comment="grant application deadline")
