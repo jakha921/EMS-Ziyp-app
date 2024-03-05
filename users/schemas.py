@@ -36,6 +36,8 @@ class SUserRegister(BaseModel):
     phone: str = Field(..., example="+998901234567")
     password: str = Field(..., example="12345678")
     device_token: str = Field(None, example="12345678")
+    last_name: str = Field(None, example="Doe")
+    first_name: str = Field(None, example="John")
 
 
 class SUserAuth(SUserRegister):
