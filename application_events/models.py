@@ -1,12 +1,10 @@
-from datetime import datetime, timedelta
-import pytz
+from datetime import datetime
 
 from sqlalchemy import String, ForeignKey, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from config.db import Base
-
-tashkent = pytz.timezone('Asia/Tashkent')
+from base.base_service import utc_now_tashkent
 
 
 class ApplicationEvents(Base):
@@ -18,9 +16,9 @@ class ApplicationEvents(Base):
     status: Mapped[str] = mapped_column(Enum("pending", "approved", "rejected", name="status"), nullable=False,
                                         default="pending")
     description: Mapped[str] = mapped_column(String(4000), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.now(tashkent))
-    updated_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.now(tashkent),
-                                                 onupdate=datetime.now(tashkent)
+    created_at: Mapped[datetime] = mapped_column(nullable=False, default=utc_now_tashkent)
+    updated_at: Mapped[datetime] = mapped_column(nullable=False, default=utc_now_tashkent,
+                                                 onupdate=utc_now_tashkent
                                                  )
 
     # relationships

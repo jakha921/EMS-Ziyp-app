@@ -1,5 +1,7 @@
 import math
+from datetime import datetime
 
+import pytz
 from fastapi import HTTPException
 from sqlalchemy import select, insert, delete, or_
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
@@ -9,6 +11,10 @@ from sqlalchemy.sql.functions import count
 from aws_media.services import change_url
 from config.db import async_session
 from exeptions import AlreadyExistsException, NotFoundException
+
+
+def utc_now_tashkent():
+    return datetime.utcnow().astimezone(pytz.timezone('Asia/Tashkent')).replace(tzinfo=None)
 
 
 class BaseServices:

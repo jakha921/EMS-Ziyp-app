@@ -1,12 +1,10 @@
 from datetime import date, datetime
-import pytz
 
 from sqlalchemy import String, ForeignKey, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from base.base_service import utc_now_tashkent
 from config.db import Base
-
-tashkent = pytz.timezone('Asia/Tashkent')
 
 
 class Users(Base):
@@ -31,9 +29,9 @@ class Users(Base):
     device_token: Mapped[str] = mapped_column(String(255), nullable=True,
                                               comment="Device token for push notifications used by firebase")
     # set time for created_at and updated_at columns +5 hours
-    registered_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.now(tashkent))
-    updated_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.now(tashkent),
-                                                 onupdate=datetime.now(tashkent))
+    registered_at: Mapped[datetime] = mapped_column(nullable=False, default=utc_now_tashkent)
+    updated_at: Mapped[datetime] = mapped_column(nullable=False, default=utc_now_tashkent,
+                                                 onupdate=utc_now_tashkent)
     deleted_at: Mapped[datetime] = mapped_column(nullable=True)
     is_completed_profile: Mapped[bool] = mapped_column(nullable=True, default=False,
                                                        comment="If user completed profile or not")

@@ -2,11 +2,9 @@ from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from datetime import datetime
-import pytz
 
+from base.base_service import utc_now_tashkent
 from config.db import Base
-
-tashkent = pytz.timezone('Asia/Tashkent')
 
 
 class News(Base):
@@ -19,9 +17,9 @@ class News(Base):
     description_ru: Mapped[str] = mapped_column(String(4000), nullable=True)
     description_en: Mapped[str] = mapped_column(String(4000), nullable=True)
     description_uz: Mapped[str] = mapped_column(String(4000), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.now(tashkent))
-    updated_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.now(tashkent),
-                                                 onupdate=datetime.now(tashkent))
+    created_at: Mapped[datetime] = mapped_column(nullable=False, default=utc_now_tashkent)
+    updated_at: Mapped[datetime] = mapped_column(nullable=False, default=utc_now_tashkent,
+                                                 onupdate=utc_now_tashkent)
     images: Mapped[str] = mapped_column(nullable=True, comment="Array of image urls")
 
     def __repr__(self):

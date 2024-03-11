@@ -2,11 +2,9 @@ from sqlalchemy import String, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from datetime import datetime
-import pytz
 
+from base.base_service import utc_now_tashkent
 from config.db import Base
-
-tashkent = pytz.timezone('Asia/Tashkent')
 
 
 class Orders(Base):
@@ -15,9 +13,9 @@ class Orders(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.now(tashkent))
-    updated_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.now(tashkent),
-                                                 onupdate=datetime.now(tashkent))
+    created_at: Mapped[datetime] = mapped_column(nullable=False, default=utc_now_tashkent)
+    updated_at: Mapped[datetime] = mapped_column(nullable=False, default=utc_now_tashkent,
+                                                 onupdate=utc_now_tashkent)
 
     # check for uniqueness
     __table_args__ = (

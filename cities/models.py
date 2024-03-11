@@ -2,11 +2,9 @@ from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from datetime import datetime
-import pytz
 
+from base.base_service import utc_now_tashkent
 from config.db import Base
-
-tashkent = pytz.timezone('Asia/Tashkent')
 
 
 class Cities(Base):
@@ -16,9 +14,9 @@ class Cities(Base):
     name_ru: Mapped[str] = mapped_column(String(255), nullable=False)
     name_uz: Mapped[str] = mapped_column(String(255), nullable=True)
     name_en: Mapped[str] = mapped_column(String(255), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.now(tashkent))
-    updated_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.now(tashkent),
-                                                 onupdate=datetime.now(tashkent))
+    created_at: Mapped[datetime] = mapped_column(nullable=False, default=utc_now_tashkent)
+    updated_at: Mapped[datetime] = mapped_column(nullable=False, default=utc_now_tashkent,
+                                                 onupdate=utc_now_tashkent)
 
     users: Mapped["Users"] = relationship(back_populates="cities")
     events: Mapped["Events"] = relationship(back_populates="cities")
