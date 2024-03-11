@@ -42,8 +42,8 @@ class UserServices(BaseServices):
             # get all fields from model where value is None and collect them in list
             fields = [key for key, value in model.__dict__.items() if value is None]
 
-            # remove device_token from fields keys
-            fields = [field for field in fields if field != 'device_token']
+            # remove device_token, deleted_at and avatar_url from fields
+            fields = [field for field in fields if field not in ['device_token', 'deleted_at', 'avatar_url']]
 
             # remove from fields keys that if they are in values of data
             fields = [field for field in fields if not data.get(field)]
@@ -53,6 +53,10 @@ class UserServices(BaseServices):
                     setattr(model, key, value)
 
             # if fields is empty then add 200 to balance
+            print('fields', fields)
+            print('model.is_completed_profile', model.is_completed_profile)
+            print('-' * 10)
+            print('is not fields and not model.is_completed_profile', not fields and not model.is_completed_profile)
             if not fields and not model.is_completed_profile:
                 model.balance += 200
                 model.is_completed_profile = True

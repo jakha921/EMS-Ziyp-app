@@ -1,10 +1,12 @@
-from datetime import datetime, timedelta
+from datetime import datetime
+import pytz
 
 from sqlalchemy import String, ForeignKey, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from config.db import Base
 
+tashkent = pytz.timezone('Asia/Tashkent')
 
 class ApplicationGrands(Base):
     __tablename__ = "application_grands"
@@ -15,9 +17,9 @@ class ApplicationGrands(Base):
     status: Mapped[str] = mapped_column(Enum("pending", "approved", "rejected", name="status"), nullable=False,
                                         default="pending")
     description: Mapped[str] = mapped_column(String(4000), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(nullable=False, default=(datetime.utcnow() + timedelta(hours=5)))
-    updated_at: Mapped[datetime] = mapped_column(nullable=False, default=(datetime.utcnow() + timedelta(hours=5)),
-                                                 onupdate=(datetime.utcnow() + timedelta(hours=5)))
+    created_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.now(tashkent))
+    updated_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.now(tashkent),
+                                                 onupdate=datetime.now(tashkent))
 
     users: Mapped["Users"] = relationship("Users", back_populates="application_grands")
     grands: Mapped["Grands"] = relationship("Grands", back_populates="application_grands")

@@ -16,6 +16,7 @@ async def send_push_notification(token: str, title: str, body: str):
             )
 
             response = messaging.send(message)
+            print("Successfully sent message:", response)
             return {"response": response}
     except exceptions.InvalidArgumentError as e:
         # Handle the error here

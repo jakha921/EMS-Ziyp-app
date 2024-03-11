@@ -27,15 +27,20 @@ async def send_sms(number: str = None,
         'data': json.dumps([{'phone': number, 'text': text}])
     }
 
-    print('data', data)
-
     # Send POST request
     response = requests.post(url, data=data)
 
     # Print response
-    print(response.status_code)
-    print(response.text)
+    print('sms response', response)
     return {'response': response.text, 'status': response.status_code}
+
+
+@router.get("/send-push-notification")
+async def send_push_notification(token: str = None,
+                                 title: str = None,
+                                 body: str = None,
+                                 ):
+    return await send_push_notification(token=token, title=title, body=body)
 
 
 if __name__ == '__main__':

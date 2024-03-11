@@ -28,9 +28,11 @@ def create_access_token(data: dict):
 
 async def authenticate_user(password: str, phone: str = None, email: EmailStr = None):
     if phone:
-        user = await UserServices.find_one_or_none(phone=phone)
+        user = await UserServices.find_one_or_none(phone=phone, deleted_at=None)
     elif email:
-        user = await UserServices.find_one_or_none(email=email)
+        user = await UserServices.find_one_or_none(email=email, deleted_at=None)
+
+    print('user', user.__dict__)
 
     if user and verify_password(password, user.hashed_password):
         return user

@@ -15,7 +15,7 @@ router = APIRouter()
 
 @router.post("/admin/register", tags=["Администраторы"], summary="Регистрация администратора")
 async def register_user(user: SAdminRegister):
-    is_user_exist = await UserServices.find_one_or_none(email=user.email)
+    is_user_exist = await UserServices.find_one_or_none(email=user.email, deleted_at=None)
 
     if is_user_exist:
         raise UserAlreadyExistsWithThisEmailException
@@ -62,7 +62,8 @@ async def login_user(response: Response, user: SAdminAuth):
 # region Auth & Users & Master
 @router.post("/user/register", tags=["Auth & Пользователи"], summary="Регистрация пользователя")
 async def register_master(user: SUserRegister, request: Request):
-    is_user_exist = await UserServices.find_one_or_none(phone=user.phone)
+    is_user_exist = await UserServices.find_one_or_none(phone=user.phone, deleted_at=None)
+    print('is_user_exist', is_user_exist)
 
     if is_user_exist:
         raise AlreadyExistsException(f"User with {user.phone} already exists")
@@ -70,25 +71,29 @@ async def register_master(user: SUserRegister, request: Request):
     hashed_password = hash_password(user.password)
     user = await UserServices.create(phone=user.phone, hashed_password=hashed_password, role="user", \
                                      first_name=user.first_name if user.first_name else None, \
-                                     last_name=user.last_name if user.last_name else None)
+                                     last_name=user.last_name if user.last_name else None, \
+                                     device_token=user.device_token if user.device_token else None
+                                     )
     return user, {'access_token': create_access_token({"sub": str(user.id)})}
 
 
 @router.post("/user/social/register", tags=["Auth & Пользователи"], summary="Регистрация пользователя через соц. сети")
 async def register_user_social(user: SUserSocialRegister):
-    is_user_exist = await UserServices.find_one_or_none(email=user.email)
+    is_user_exist = await UserServices.find_one_or_none(email=user.email, deleted_at=None)
 
     if is_user_exist:
         raise UserAlreadyExistsWithThisEmailException
 
     hashed_password = hash_password(user.password)
-    user = await UserServices.create(email=user.email, hashed_password=hashed_password, role="user")
+    user = await UserServices.create(email=user.email, hashed_password=hashed_password, role="user", \
+                                     device_token=user.device_token if user.device_token else None
+                                     )
     return user, {'access_token': create_access_token({"sub": str(user.id)})}
 
 
 @router.post("/master/register", tags=["Мастера"], summary="Регистрация мастера")
 async def register_user(user: SMasterRester, request: Request):
-    is_user_exist = await UserServices.find_one_or_none(phone=user.phone)
+    is_user_exist = await UserServices.find_one_or_none(phone=user.phone, deleted_at=None)
 
     if is_user_exist:
         raise AlreadyExistsException(f"User with {user.phone} already exists")
@@ -108,8 +113,12 @@ async def register_user(user: SMasterRester, request: Request):
 
 @router.post("/user/login", tags=["Auth & Пользователи"], summary="Авторизация пользователя")
 @router.post("/master/login", tags=["Мастера"], summary="Авторизация мастера")
-async def login_user(response: Response, user: SUserAuth):
-    user = await authenticate_user(phone=user.phone, password=user.password)
+async def login_user(response: Response, body_user: SUserAuth):
+    user = await authenticate_user(phone=body_user.phone, password=body_user.password)
+
+    if body_user.device_token and body_user.device_token != user.device_token:
+        await UserServices.update(id=user.id, device_token=body_user.device_token)
+
     if not user:
         raise UserNotFoundException
 
@@ -123,10 +132,13 @@ async def login_user(response: Response, user: SUserAuth):
 
 
 @router.post("/user/social/login", tags=["Auth & Пользователи"], summary="Авторизация пользователя через соц. сети")
-async def login_user_social(response: Response, user: SUserSocialAuth):
-    user = await authenticate_user(email=user.email, password=user.password)
+async def login_user_social(response: Response, body_user: SUserSocialAuth):
+    user = await authenticate_user(email=body_user.email, password=body_user.password)
     if not user:
         raise UserNotFoundException
+
+    if body_user.device_token and body_user.device_token != user.device_token:
+        await UserServices.update(id=user.id, device_token=body_user.device_token)
 
     # create access token
     token = create_access_token({"sub": str(user.id)})
@@ -176,7 +188,7 @@ async def get_user_by_id(user_id: int, user: Users = Depends(get_current_user)):
 async def update_user_by_id(user_id: int, update_user: SUserUpdate):
     # print('id', user_id, update_user.dict())
     if update_user.phone:
-        is_user_exist = await UserServices.find_one_or_none(phone=update_user.phone)
+        is_user_exist = await UserServices.find_one_or_none(phone=update_user.phone, deleted_at=None)
         if is_user_exist and is_user_exist.id != user_id:
             raise AlreadyExistsException(f"User with {update_user.phone} already exists")
 
