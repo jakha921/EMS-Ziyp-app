@@ -18,7 +18,7 @@ class UserServices(BaseServices):
     ]
 
     @classmethod
-    async def update(cls, id: int, **data):
+    async def update(cls, id: int, lang: str = "ru", **data):
         """Обновить model по id по id взять данные потльзователя и обновить их"""
         async with async_session() as session:
             db_model = select(cls.model).filter_by(id=id)
@@ -60,10 +60,27 @@ class UserServices(BaseServices):
             if not fields and not model.is_completed_profile:
                 model.balance += 200
                 model.is_completed_profile = True
+                msg = {
+                    "ru": {
+                        "title": "Поздравляем!",
+                        "body": "Вы успешно прошли регистрацию и получили 200 YC на баланс!"
+                    },
+                    "uz": {
+                        "title": "Tabriklaymiz!",
+                        "body": "Siz ro'yxatdan muvaffaqiyatli o'tdingiz va balansga 200 YC olgansiz!"
+                    },
+                    "en": {
+                        "title": "Congratulations!",
+                        "body": "You have successfully registered and received 200 YC on your balance!"
+                    }
+                }
+
+                text = msg.get(lang)
+
                 status = await send_push_notification(
                     token=model.device_token,
-                    title="Поздравляем!",
-                    body="Вы успешно прошли регистрацию и получили 200 YC на баланс!"
+                    title=text.get('title'),
+                    body=text.get('body')
                 )
             await session.commit()
 
@@ -80,7 +97,8 @@ class UserServices(BaseServices):
 
             try:
                 # query = delete(cls.model).filter_by(**filter_by).returning(cls.model)
-                query = update(cls.model).where(cls.model.id == model.id).values(deleted_at=datetime.utcnow()).returning(
+                query = update(cls.model).where(cls.model.id == model.id).values(
+                    deleted_at=datetime.utcnow()).returning(
                     cls.model)
                 result = await session.execute(query)
                 await session.commit()
@@ -93,4 +111,3 @@ class UserServices(BaseServices):
                 await session.rollback()
                 print('e', e)
                 raise AlreadyExistsException("Deletion failed due to an unexpected error.") from e
-

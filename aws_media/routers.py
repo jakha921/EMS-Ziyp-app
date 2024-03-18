@@ -8,8 +8,7 @@ router = APIRouter()
 
 
 @router.post("/upload/media", summary="Загрузить файл")
-async def upload_complain_file(file: UploadFile = File(...),
-                               user: Users = Depends(get_current_user)):
+async def upload_complain_file(file: UploadFile = File(...)):
     return await upload_file(file)
 
 # endregion

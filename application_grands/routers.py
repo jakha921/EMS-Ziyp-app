@@ -18,8 +18,11 @@ async def get_all_grands(user: Users = Depends(get_current_user),
                          page: int = None,
                          limit: int = None,
                          user_id: int = None,
+                         grand_id: int = None,
+                         status: str = None,
                          ):
-    return await ApplicationGrandsServices.find_all(limit=limit, offset=page,user_id=user_id)
+    return await ApplicationGrandsServices.find_all(limit=limit, offset=page, user_id=user_id, grand_id=grand_id,
+                                                    status=status)
 
 
 @router.get("/{grand_id}", summary="Получить заявку на грант по id")

@@ -35,6 +35,7 @@ class Users(Base):
     deleted_at: Mapped[datetime] = mapped_column(nullable=True)
     is_completed_profile: Mapped[bool] = mapped_column(nullable=True, default=False,
                                                        comment="If user completed profile or not")
+    is_volunteer: Mapped[bool] = mapped_column(nullable=True, default=False, comment="If user is volunteer or not")
 
     # relationships
     cities: Mapped["Cities"] = relationship("Cities", back_populates="users")

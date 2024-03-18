@@ -1,7 +1,8 @@
-from sqlalchemy import insert, select
+from sqlalchemy import insert, select, update
 
 from config.db import async_session
 from exeptions import VolunteerAlreadyExistsException
+from users.models import Users
 from volunteers.models import Volunteers
 from base.base_service import BaseServices
 
@@ -20,6 +21,12 @@ class VolunteerServices(BaseServices):
         model = result.mappings().first()
         if model:
             raise VolunteerAlreadyExistsException
+
+        # change user field is volunteer to True
+        async with async_session() as session:
+            user = update(Users).where(Users.id == data['user_id']).values(is_volunteer=True)
+            await session.execute(user)
+            await session.commit()
 
         query = insert(cls.model).values(**data).returning(cls.model)
         async with async_session() as session:

@@ -17,7 +17,7 @@ class OrderServices(BaseServices):
     ]
 
     @classmethod
-    async def create(cls, **data):
+    async def create(cls, lang: str, **data):
         """Создать model"""
         async with async_session() as session:
             is_unique = await session.execute(
@@ -51,10 +51,27 @@ class OrderServices(BaseServices):
             print('user', user_balance)
 
             # send push notification
+            msg = {
+                "ru": {
+                    "title": "Заказ",
+                    "body": f"Ваш заказ успешно оформлен!\nC вашего баланса списано {product_price} YC"
+                },
+                "en": {
+                    "title": "Order",
+                    "body": f"Your order has been successfully placed!\n{product_price} YC has been deducted from your balance"
+                },
+                "uz": {
+                    "title": "Buyurtma",
+                    "body": f"Sizning buyurtmangiz muvaffaqiyatli qabul qilindi!\nSizning balansingizdan {product_price} YC ayirib olinadi"
+                }
+            }
+
+            text = msg.get(lang)
+
             await send_push_notification(
                 token=user.device_token,
-                title="Заказ",
-                body=f"Ваш заказ успешно оформлен!\nC вашего баланса списано {product_price} YC"
+                title=text.get('title'),
+                body=text.get('body')
             )
 
             query = insert(cls.model).values(**data).returning(cls.model)
@@ -65,7 +82,7 @@ class OrderServices(BaseServices):
             return result.mappings().first()[f'{(cls.model.__tablename__).capitalize()}']
 
     @classmethod
-    async def delete(cls, **filter_by):
+    async def delete(cls, lang: str, **filter_by):
         async with async_session() as session:
             db_model = select(cls.model).filter_by(**filter_by)
             result = await session.execute(db_model)
@@ -89,10 +106,27 @@ class OrderServices(BaseServices):
                 update(Users).where(Users.id == model.user_id).values(balance=user_balance))
 
             # send push notification
+            msg = {
+                "ru": {
+                    "title": "Заказ",
+                    "body": f"Ваш заказ отменен!\nНа ваш баланс зачислено {product_price} YC"
+                },
+                "en": {
+                    "title": "Order",
+                    "body": f"Your order has been canceled!\n{product_price} YC has been credited to your balance"
+                },
+                "uz": {
+                    "title": "Buyurtma",
+                    "body": f"Sizning buyurtmangiz bekor qilindi!\nSizning balansingizga {product_price} YC qo'shildi"
+                }
+            }
+
+            text = msg.get(lang)
+
             await send_push_notification(
                 token=user.device_token,
-                title="Заказ",
-                body=f"Ваш заказ отменен!\nНа ваш баланс зачислено {product_price} YC"
+                title=text.get('title'),
+                body=text.get('body')
             )
 
             query = delete(cls.model).filter_by(**filter_by).returning(cls.model)

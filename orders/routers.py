@@ -27,8 +27,8 @@ async def get_order_by_id(order_id: int, user: Users = Depends(get_current_user)
 
 
 @router.post("", summary="Создать заказ")
-async def create_order(order: SOrderCreate, user: Users = Depends(get_current_user)):
-    return await OrderServices.create(**order.dict())
+async def create_order(order: SOrderCreate, user: Users = Depends(get_current_user), lang: str = "ru"):
+    return await OrderServices.create(lang=lang, **order.dict())
 
 
 # @router.patch("/{order_id}", summary="Обновить заказ по id")
@@ -37,6 +37,6 @@ async def update_order_by_id(order_id: int, order: SOrderCreate, user: Users = D
 
 
 @router.delete("/{order_id}", summary="Удалить заказ по id")
-async def delete_order_by_id(order_id: int, user: Users = Depends(get_current_user)):
-    return await OrderServices.delete(id=order_id)
+async def delete_order_by_id(order_id: int, user: Users = Depends(get_current_user), lang: str = "ru"):
+    return await OrderServices.delete(id=order_id, lang=lang)
 # endregion
