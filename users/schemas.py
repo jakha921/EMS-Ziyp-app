@@ -38,6 +38,7 @@ class SUserRegister(BaseModel):
     device_token: str = Field(None, example="12345678")
     last_name: str = Field(None, example="Doe")
     first_name: str = Field(None, example="John")
+    avatar_url: list = Field(None, example=["https://example.com/1.jpg", "https://example.com/2.jpg"])
 
 
 class SUserAuth(SUserRegister):
@@ -48,6 +49,7 @@ class SUserSocialRegister(BaseModel):
     email: EmailStr = Field(..., example="user@gmail.com")
     password: str = Field(..., example="12345678")
     device_token: str = Field(None, example="12345678")
+    avatar_url: list = Field(None, example=["https://example.com/1.jpg", "https://example.com/2.jpg"])
 
 
 class SUserSocialAuth(SUserSocialRegister):

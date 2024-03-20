@@ -1,8 +1,8 @@
 import math
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from fastapi import HTTPException
-from sqlalchemy import or_, select, insert
+from sqlalchemy import or_, select, insert, update
 from sqlalchemy.orm import selectinload, outerjoin
 from sqlalchemy.sql.functions import count, func
 
@@ -10,6 +10,7 @@ from aws_media.services import change_url
 from config.db import async_session
 from events.models import Events
 from base.base_service import BaseServices
+from notification.models import Notifications
 
 
 class EventServices(BaseServices):
@@ -137,31 +138,73 @@ class EventServices(BaseServices):
         async with async_session() as session:
             result = await session.execute(query)
             await session.commit()
-            print('name model', cls.model.__tablename__)
-            if cls.model.__tablename__ not in ['application_grands',
-                                               'application_event']:
-                return result.mappings().first()[
-                    f'{(cls.model.__tablename__).capitalize()}' if cls.model.__tablename__ != 'faqs' else 'FAQs']
-            else:
-                model_name = cls.model.__tablename__.split('_')  # ['application', 'grands']
-                model_name = [item.capitalize() for item in model_name]  # ['Application', 'Grands']
-                model_name = ''.join(model_name)  # 'ApplicationGrands'
+            event = result.mappings().first()[
+                f'{(cls.model.__tablename__).capitalize()}' if cls.model.__tablename__ != 'faqs' else 'FAQs']
 
-                # change url to list
-                if image_field_name and result.mappings().first()[f'{model_name}'].get(image_field_name) is not None:
-                    updated_value = await change_url(result.mappings().first()[f'{model_name}'].get(image_field_name),
-                                                     True)
-                    result.mappings().first()[f'{model_name}'][image_field_name] = updated_value
-                elif image_field_name and result.mappings().first()[f'{model_name}'].get(image_field_name) is None:
-                    result.mappings().first()[f'{model_name}'][image_field_name] = []
+        if event.id:
+            async with async_session() as session:
+                # add notification to send 2 hours before event starts
 
-                return result.mappings().first()[f'{model_name}']
-            # except (SQLAlchemyError, Exception) as e:
-        #     if isinstance(e, SQLAlchemyError):
-        #         msg = "Database Exc: Cannot insert data into table"
-        #     elif isinstance(e, Exception):
-        #         msg = "Unknown Exc: Cannot insert data into table"
-        #
-        #     # logger.error(msg, extra={"table": cls.model.__tablename__}, exc_info=True)
-        #     print('error', msg, e)
-        #     return None
+                start_datetime = datetime.combine(event.start_date, event.start_time)
+                query = insert(Notifications).values(
+                    event_id=event.id,
+                    title_ru=f"До начала {event.name_ru} осталось 2 часа",
+                    title_uz=f"{event.name_uz} boshlanishiga 2 soat qoldi",
+                    title_en=f"2 hours left before {event.name_en} starts",
+                    body_ru=f"До начала {event.name_ru} осталось 2 часа",
+                    body_uz=f"{event.name_uz} boshlanishiga 2 soat qoldi",
+                    body_en=f"2 hours left before {event.name_en} starts",
+                    datetime_to_send=start_datetime - timedelta(hours=2)
+                ).returning(Notifications)
+                await session.execute(query)
+                await session.commit()
+
+        return event
+
+    @classmethod
+    async def update(cls, id: int, **data):
+        """Обновить model по id по id взять данные потльзователя и обновить их"""
+        async with async_session() as session:
+            db_model = select(cls.model).filter_by(id=id)
+            result = await session.execute(db_model)
+            model = result.scalars().first()
+
+            # check if start date is changed
+            if data.get('start_date') and model.start_date != data.get('start_date') or \
+                    data.get('start_time') and model.start_time != data.get('start_time'):
+                # add notification to send 2 hours before event starts
+                start_datetime = datetime.combine(
+                    data.get('start_date' if data.get('start_date') else model.start_date),
+                    data.get('start_time' if data.get('start_time') else model.start_time)
+                )
+
+                print('start_datetime', start_datetime)
+                # update notification datetime_to_send
+                query = update(Notifications).where(Notifications.event_id == id).values(
+                    datetime_to_send=start_datetime - timedelta(hours=2)
+                ).returning(Notifications)
+                await session.execute(query)
+                await session.commit()
+
+            # get image field name and change url to string
+            image_field_name = None
+            if hasattr(cls.model, 'image_urls'):
+                image_field_name = 'image_urls'
+            elif hasattr(cls.model, 'images'):
+                image_field_name = 'images'
+            elif hasattr(cls.model, 'avatar_url'):
+                image_field_name = 'avatar_url'
+            elif hasattr(cls.model, 'image_url'):
+                image_field_name = 'image_url'
+
+            if image_field_name and data.get(image_field_name) is not None:
+                data[image_field_name] = await change_url(data[image_field_name], to_list=False)
+            elif image_field_name and data.get(image_field_name) is None:
+                data[image_field_name] = ''
+
+            for key, value in data.items():
+                if value:
+                    setattr(model, key, value)
+            await session.commit()
+
+            return model

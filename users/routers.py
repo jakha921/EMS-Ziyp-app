@@ -72,7 +72,8 @@ async def register_master(user: SUserRegister, request: Request):
     user = await UserServices.create(phone=user.phone, hashed_password=hashed_password, role="user", \
                                      first_name=user.first_name if user.first_name else None, \
                                      last_name=user.last_name if user.last_name else None, \
-                                     device_token=user.device_token if user.device_token else None
+                                     device_token=user.device_token if user.device_token else None, \
+                                     avatar_url=user.avatar_url if user.avatar_url else None
                                      )
     return user, {'access_token': create_access_token({"sub": str(user.id)})}
 
@@ -86,7 +87,8 @@ async def register_user_social(user: SUserSocialRegister):
 
     hashed_password = hash_password(user.password)
     user = await UserServices.create(email=user.email, hashed_password=hashed_password, role="user", \
-                                     device_token=user.device_token if user.device_token else None
+                                     device_token=user.device_token if user.device_token else None, \
+                                     avatar_url=user.avatar_url if user.avatar_url else None
                                      )
     return user, {'access_token': create_access_token({"sub": str(user.id)})}
 

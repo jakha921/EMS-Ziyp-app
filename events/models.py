@@ -39,6 +39,7 @@ class Events(Base):
     # relationships
     cities: Mapped["Cities"] = relationship("Cities", back_populates="events")
     application_events: Mapped["ApplicationEvents"] = relationship("ApplicationEvents", back_populates="events")
+    notifications: Mapped["Notifications"] = relationship("Notifications", back_populates="events")
 
     def __repr__(self):
         return f"<Events {self.name_ru}>"
