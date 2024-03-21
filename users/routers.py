@@ -199,7 +199,7 @@ async def update_user_by_id(user_id: int, update_user: SUserUpdate, lang: str = 
         if is_user_exist and is_user_exist.id != user_id:
             raise UserAlreadyExistsWithThisEmailException
 
-    return await UserServices.update(id=user_id, **update_user.dict(), lang=lang)
+    return await UserServices.update(id=user_id, language=lang, **update_user.dict())
 
 
 @router.delete("/user/{user_id}", tags=["Auth & Пользователи"], summary="Удалить пользователя по id")

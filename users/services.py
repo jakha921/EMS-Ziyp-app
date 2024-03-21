@@ -18,7 +18,7 @@ class UserServices(BaseServices):
     ]
 
     @classmethod
-    async def update(cls, id: int, lang: str = "ru", **data):
+    async def update(cls, id: int, language: str = "ru", **data):
         """Обновить model по id по id взять данные потльзователя и обновить их"""
         async with async_session() as session:
             db_model = select(cls.model).filter_by(id=id)
@@ -75,7 +75,7 @@ class UserServices(BaseServices):
                     }
                 }
 
-                text = msg.get(lang)
+                text = msg.get(language)
 
                 status = await send_push_notification(
                     token=model.device_token,
