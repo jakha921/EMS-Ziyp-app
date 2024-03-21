@@ -7,6 +7,7 @@ class SAdminRegisterResponse(BaseModel):
     status: str
     detail: str
     data: dict = None
+    lang: str = None
 
 
 class SAdminRegister(BaseModel):
@@ -14,6 +15,7 @@ class SAdminRegister(BaseModel):
     password: str = Field(..., example="12345678")
     last_name: str = Field(None, example="Doe")
     first_name: str = Field(None, example="John")
+    lang: str = Field(None, example="ru")
 
 
 class SAdminAuth(BaseModel):
@@ -26,6 +28,7 @@ class SMasterRester(BaseModel):
     first_name: str = Field(None, example="John")
     phone: str = Field(..., example="+998901234567")
     password: str = Field(..., example="12345678")
+    lang: str = Field(None, example="ru")
 
 
 class SMasterUpdate(BaseModel):
@@ -39,6 +42,7 @@ class SUserRegister(BaseModel):
     last_name: str = Field(None, example="Doe")
     first_name: str = Field(None, example="John")
     avatar_url: list = Field(None, example=["https://example.com/1.jpg", "https://example.com/2.jpg"])
+    lang: str = Field(None, example="ru")
 
 
 class SUserAuth(SUserRegister):
@@ -50,6 +54,7 @@ class SUserSocialRegister(BaseModel):
     password: str = Field(..., example="12345678")
     device_token: str = Field(None, example="12345678")
     avatar_url: list = Field(None, example=["https://example.com/1.jpg", "https://example.com/2.jpg"])
+    lang: str = Field(None, example="ru")
 
 
 class SUserSocialAuth(SUserSocialRegister):
@@ -70,6 +75,7 @@ class SUserUpdate(BaseModel):
     additional_data: str = Field(None, example="Some additional data")
     avatar_url: list = Field(None, example=["https://example.com/1.jpg", "https://example.com/2.jpg"])
     balance: int = Field(None, example=1000)
+    lang: str = Field(None, example="ru")
 
     class Config:
         orm_mode = True

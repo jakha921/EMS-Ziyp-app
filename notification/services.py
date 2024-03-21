@@ -1,4 +1,5 @@
 import math
+from datetime import datetime
 
 from fastapi import HTTPException
 from sqlalchemy import select, func, or_
@@ -108,3 +109,12 @@ class NotificationServices(BaseServices):
                 "detail": f"{cls.model.__tablename__} not retrieved",
                 "data": str(e) if str(e) else None
             })
+
+    @classmethod
+    async def get_datetime_to_send_less_than_now(cls):
+        """Получить все уведомления, которые должны быть отправлены до текущего времени"""
+        async with async_session() as session:
+            query = select(cls.model).where(cls.model.datetime_to_send <= datetime.now())
+            result = await session.execute(query)
+            response = result.scalars().all()
+            return response

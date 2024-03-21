@@ -111,3 +111,12 @@ class UserServices(BaseServices):
                 await session.rollback()
                 print('e', e)
                 raise AlreadyExistsException("Deletion failed due to an unexpected error.") from e
+
+    @classmethod
+    async def get_by_ids(cls, ids: list):
+        """Получить всех пользователей по их id"""
+        async with async_session() as session:
+            query = select(cls.model).where(cls.model.id.in_(ids))
+            result = await session.execute(query)
+            response = result.scalars().all()
+            return response

@@ -148,12 +148,12 @@ class EventServices(BaseServices):
                 start_datetime = datetime.combine(event.start_date, event.start_time)
                 query = insert(Notifications).values(
                     event_id=event.id,
-                    title_ru=f"До начала {event.name_ru} осталось 2 часа",
-                    title_uz=f"{event.name_uz} boshlanishiga 2 soat qoldi",
-                    title_en=f"2 hours left before {event.name_en} starts",
-                    body_ru=f"До начала {event.name_ru} осталось 2 часа",
-                    body_uz=f"{event.name_uz} boshlanishiga 2 soat qoldi",
-                    body_en=f"2 hours left before {event.name_en} starts",
+                    title_ru=f"До начала {event.name_ru} осталось менее 2 часов",
+                    title_uz=f"{event.name_uz} boshlanishiga 2 soatdan kam qoldi",
+                    title_en=f"Lest than 2 hours left before {event.name_en} starts",
+                    body_ru=f"До начала {event.name_ru} осталось менее 2 часов",
+                    body_uz=f"{event.name_uz} boshlanishiga 2 soatdan kam qoldi",
+                    body_en=f"Lest than 2 hours left before {event.name_en} starts",
                     datetime_to_send=start_datetime - timedelta(hours=2)
                 ).returning(Notifications)
                 await session.execute(query)

@@ -1,10 +1,11 @@
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, Request, status, BackgroundTasks
 from fastapi.exceptions import ValidationError, RequestValidationError
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from cities.routers import router as cities_router
+from cron.tasks import cron_job_runner
 from users.routers import router as users_router
 from volunteers.routers import router as volunteers_router
 from categories.routers import router as categories_router
@@ -42,6 +43,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Start the cron job scheduler
+print('Cron job starting...')
+cron_job_runner.start()
+print('Cron job started')
 
 # exception handler ValidationError
 @app.exception_handler(ValidationError)
@@ -88,7 +93,7 @@ routers = [
 for router in routers:
     app.include_router(router)
 
-
 if __name__ == '__main__':
     import uvicorn
+
     uvicorn.run(app, host="localhost", port=8000)

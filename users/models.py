@@ -36,6 +36,7 @@ class Users(Base):
     is_completed_profile: Mapped[bool] = mapped_column(nullable=True, default=False,
                                                        comment="If user completed profile or not")
     is_volunteer: Mapped[bool] = mapped_column(nullable=True, default=False, comment="If user is volunteer or not")
+    lang: Mapped[str] = mapped_column(String(2), nullable=True, default="ru", comment="Language of user")
 
     # relationships
     cities: Mapped["Cities"] = relationship("Cities", back_populates="users")

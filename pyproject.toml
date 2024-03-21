@@ -16,6 +16,7 @@ gunicorn = "^21.2.0"
 sqlalchemy = "^2.0.23"
 python-magic = "^0.4.27"
 firebase-admin = "^6.3.0"
+aiocron = "^1.8"
 
 
 [build-system]
