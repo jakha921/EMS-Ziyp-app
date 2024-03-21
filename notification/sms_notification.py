@@ -3,6 +3,8 @@ import json
 
 from fastapi import APIRouter
 
+from cron.tasks import cron_job
+
 router = APIRouter(
     prefix="/notification",
 )
@@ -41,6 +43,11 @@ async def send_push_notification(token: str = None,
                                  body: str = None,
                                  ):
     return await send_push_notification(token=token, title=title, body=body)
+
+
+@router.post("/update-notification", summary="Отправить уведомление о событии")
+async def update_notification():
+    return await cron_job()
 
 
 if __name__ == '__main__':

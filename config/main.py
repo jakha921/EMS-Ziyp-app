@@ -5,7 +5,6 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from cities.routers import router as cities_router
-from cron.tasks import cron_job_runner
 from users.routers import router as users_router
 from volunteers.routers import router as volunteers_router
 from categories.routers import router as categories_router
@@ -19,6 +18,7 @@ from news.routers import router as news_router
 from faqs.routers import router as faqs_router
 from aws_media.routers import router as aws_media_router
 from notification.sms_notification import router as sms_notification_router
+
 
 app = FastAPI(
     title="EMS API",
@@ -43,10 +43,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Start the cron job scheduler
-print('Cron job starting...')
-cron_job_runner.start()
-print('Cron job started')
 
 # exception handler ValidationError
 @app.exception_handler(ValidationError)
@@ -87,7 +83,8 @@ routers = [
     application_grands_router,
     news_router,
     faqs_router,
-    sms_notification_router
+    sms_notification_router,
+
 ]
 
 for router in routers:

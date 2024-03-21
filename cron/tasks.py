@@ -1,6 +1,5 @@
 from datetime import datetime
 
-from aiocron import crontab
 import asyncio
 
 from application_events.services import ApplicationEventServices
@@ -50,5 +49,5 @@ async def cron_job():
     print('-' * 10, '\n\n')
 
 
-# Schedule your cron job function to run every 1 minute
-cron_job_runner = crontab('*/1 * * * *', cron_job)
+# # Schedule your cron job function to run every 10 seconds
+# cron_job_runner = crontab('*/10 * * * *', cron_job)
