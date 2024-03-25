@@ -35,6 +35,7 @@ async def cron_job():
         # send push notification to users
         print('users', users)
         for user in users:
+            print('user token', user.device_token)
             foo = await send_push_notification(
                 token=user.device_token,
                 title=notification.title_ru if user.lang == 'ru' else notification.title_uz if user.lang == 'uz' else notification.title_en,
@@ -47,6 +48,7 @@ async def cron_job():
 
     print("Cron job finished...", datetime.now())
     print('-' * 10, '\n\n')
+    return {"status": "success"}
 
 
 # # Schedule your cron job function to run every 10 seconds

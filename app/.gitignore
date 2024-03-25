@@ -1,4 +1,4 @@
-.idea
+../.idea
 src/.idea
 tests/
 *.pyc

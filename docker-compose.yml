@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8000"
+
+  cron:
+    build:
+      context: ./cron
+      dockerfile: Dockerfile
+    depends_on:
+      - app
