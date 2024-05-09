@@ -25,6 +25,9 @@ class UserServices(BaseServices):
             result = await session.execute(db_model)
             model = result.scalars().first()
 
+            if data.get('password'):
+                data['hashed_password'] = data.pop('password')
+
             # get image field name and change url to string
             image_field_name = None
             if hasattr(cls.model, 'image_urls'):

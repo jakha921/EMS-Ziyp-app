@@ -199,6 +199,9 @@ async def update_user_by_id(user_id: int, update_user: SUserUpdate, lang: str = 
         if is_user_exist and is_user_exist.id != user_id:
             raise UserAlreadyExistsWithThisEmailException
 
+    if update_user.password:
+        update_user.password = hash_password(update_user.password)
+
     return await UserServices.update(id=user_id, language=lang, **update_user.dict())
 
 
