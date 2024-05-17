@@ -158,7 +158,7 @@ async def get_me(user: Users = Depends(get_current_user)):
 
 @router.post("/user/{phone}", tags=["Auth & Пользователи"], summary="Получить пользователя по телефону")
 async def get_user_by_phone(phone: str):
-    user = await UserServices.find_one_or_none(phone=phone)
+    user = await UserServices.find_one_or_none(phone=phone, deleted_at=None)
     print('user ', user)
     if not user:
         raise UserNotFoundException
