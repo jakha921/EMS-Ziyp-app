@@ -35,6 +35,8 @@ class Events(Base):
     updated_at: Mapped[datetime] = mapped_column(nullable=False, default=utc_now_tashkent,
                                                  onupdate=utc_now_tashkent)
     is_exist_free_places: Mapped[bool] = mapped_column(nullable=True, default=True)
+    latitude: Mapped[float] = mapped_column(nullable=True)
+    longitude: Mapped[float] = mapped_column(nullable=True)
 
     # relationships
     cities: Mapped["Cities"] = relationship("Cities", back_populates="events")

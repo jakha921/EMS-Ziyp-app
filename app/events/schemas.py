@@ -26,6 +26,8 @@ class SEventCreate(BaseModel):
     description_uz: str = Field(None, max_length=4000)
     description_en: str = Field(None, max_length=4000)
     image_urls: list = Field(None)
+    latitude: float = Field(None)
+    longitude: float = Field(None)
 
     class Config:
         orm_mode = True
@@ -54,7 +56,9 @@ class SEventCreate(BaseModel):
                 "image_urls": [
                     "https://example.com/image1.jpg",
                     "https://example.com/image2.jpg"
-                ]
+                ],
+                "latitude": 41.311081,
+                "longitude": 69.240562
             }
         }
 

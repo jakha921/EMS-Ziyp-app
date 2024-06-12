@@ -13,6 +13,12 @@ router = APIRouter()
 
 # region Master and Admin
 
+@router.get("/user/top", tags=["Auth & Пользователи"], summary="Получить топ пользователей по количеству коинов")
+async def get_top_user_by_coins(limit: int = None, page: int = None):
+    print('limit', limit, 'page', page, 'get_top_user_by_coins')
+    return await UserServices.get_top_user_by_coins(limit=limit, page=page)
+
+
 @router.post("/admin/register", tags=["Администраторы"], summary="Регистрация администратора")
 async def register_user(user: SAdminRegister):
     is_user_exist = await UserServices.find_one_or_none(email=user.email, deleted_at=None)

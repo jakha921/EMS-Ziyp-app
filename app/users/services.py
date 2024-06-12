@@ -123,3 +123,25 @@ class UserServices(BaseServices):
             result = await session.execute(query)
             response = result.scalars().all()
             return response
+
+    @classmethod
+    async def get_top_user_by_coins(cls, limit: int = None, page: int = None):
+        """Получить топ пользователей по количеству коинов"""
+        async with async_session() as session:
+
+            query = select(
+                cls.model.id,
+                cls.model.last_name,
+                cls.model.first_name,
+                cls.model.balance,
+                cls.model.phone,
+                cls.model.email
+            ).where(
+                cls.model.deleted_at.is_(None),
+                cls.model.role == 'user'
+            ).order_by(cls.model.balance.desc())
+            if limit and page:
+                query = query.offset((page - 1) * limit).limit(limit)
+            result = await session.execute(query)
+            response = result.mappings().all()
+            return response
