@@ -20,7 +20,7 @@ class EventServices(BaseServices):
     load_relations = ['cities']
 
     @classmethod
-    async def find_all(cls, new_event: bool = None, limit: int = None, offset: int = None, search: str = None,
+    async def find_all(cls, new_event: bool = None, limit: int = None, offset: int = None, search: str = None, date_now=None,
                        **kwargs):
         """Получить все model по фильтру"""
         try:
@@ -43,6 +43,11 @@ class EventServices(BaseServices):
                         cls.model.start_date < now)
                     length_query = length_query.where(cls.model.start_date >= now) if new_event else length_query.where(
                         cls.model.start_date < now)
+
+                # Фильтр по дате
+                if date_now:
+                    query = query.where(cls.model.end_date >= date_now)
+                    length_query = length_query.where(cls.model.end_date >= date_now)
 
                 # Поиск по полям
                 if search and cls.search_fields:

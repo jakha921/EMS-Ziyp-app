@@ -1,3 +1,4 @@
+import datetime
 from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -22,12 +23,15 @@ async def get_all_events(user: Users = Depends(get_current_user),
                          page: int = None,
                          limit: int = None,
                          search: str = None,
+                         date_now: date = datetime.date.today()
                          ):
     return await EventServices.find_all(new_event=new_event,
                                         is_paid_event=is_paid_event,
                                         limit=limit,
                                         offset=page,
-                                        search=search)
+                                        search=search,
+                                        date_now=date_now
+                                        )
 
 
 @router.get("/{event_id}", summary="Получить событие по id")
