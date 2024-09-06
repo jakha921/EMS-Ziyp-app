@@ -23,6 +23,7 @@ class Products(Base):
     created_at: Mapped[datetime] = mapped_column(nullable=False, default=utc_now_tashkent)
     updated_at: Mapped[datetime] = mapped_column(nullable=False, default=utc_now_tashkent,
                                                  onupdate=utc_now_tashkent)
+    quantity: Mapped[int] = mapped_column(nullable=True, default=0)
 
     categories: Mapped["Categories"] = relationship("Categories", back_populates="products")
     orders: Mapped["Orders"] = relationship("Orders", back_populates="products")

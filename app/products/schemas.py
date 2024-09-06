@@ -13,6 +13,7 @@ class SProductCreate(BaseModel):
     description_en: str = Field(None, max_length=4000)
     category_id: int
     images: list = Field(None)
+    quantity: int = Field(0)
 
     class Config:
         orm_mode = True
@@ -27,6 +28,7 @@ class SProductCreate(BaseModel):
                 "description_uz": "Mahsulot haqida",
                 "description_en": "Product description",
                 "category_id": 1,
+                "quantity": 100,
                 "images": [
                     "https://example.com/image1.jpg",
                     "https://example.com/image2.jpg"
