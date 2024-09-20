@@ -134,7 +134,11 @@ class OrderServices(BaseServices):
 
             if is_unique:
                 raise AlreadyExistsException(
-                    "Order for this user and product already exists.")
+                    "Order for this user and product already exists." if lang == 'en' else
+                    "Заказ для этого пользователя и продукта уже существует." if lang == 'ru' else
+                    "Bu foydalanuvchi va mahsulot uchun buyurtma mavjud."
+
+                )
 
             # get product price and update user balance
             product = await session.execute(
@@ -146,12 +150,18 @@ class OrderServices(BaseServices):
             # check if product is available
             if quantity_product == 0:
                 raise AlreadyExistsException(
-                    "Product is not available.")
+                    "Product is not available." if lang == 'en' else
+                    "Продукт недоступен." if lang == 'ru' else
+                    "Mahsulot mavjud emas."
+                )
 
             if data.get('count'):
                 if quantity_product - data.get('count') < 0:
                     raise AlreadyExistsException(
-                        "Product is not available in this quantity.")
+                        "Product is not available in this quantity." if lang == 'en' else
+                        "Продукт недоступен в данном количестве." if lang == 'ru' else
+                        "Mahsulot bu miqdorda mavjud emas."
+                    )
                 else:
                     quantity_product -= data.get('count')
                     await session.execute(
@@ -166,7 +176,10 @@ class OrderServices(BaseServices):
             print('event', product_price, 'user', user_balance)
             if user_balance < product_price:
                 raise AlreadyExistsException(
-                    "User balance is not enough for this product.")
+                    "User balance is not enough for this product." if lang == 'en' else
+                    "Баланс пользователя недостаточен для этого продукта." if lang == 'ru' else
+                    "Foydalanuvchi balansi ushbu mahsulot uchun yetarli emas."
+                )
             user_balance -= product_price
             # apply changes to user balance
             await session.execute(
