@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
-from grands.services import GrandsServices
 from grands.schemas import SGrandCreate, SGrandUpdate
+from grands.services import GrandsServices
 from users.dependencies import get_current_user
 from users.models import Users
 
@@ -13,11 +13,11 @@ router = APIRouter(
 
 # CRUD
 @router.get("", summary="Получить все гранды")
-async def get_all_grands(user: Users = Depends(get_current_user),
-                         page: int = None,
-                         limit: int = None,
-                         search: str = None,
-                         ):
+async def get_all_grands(
+        page: int = None,
+        limit: int = None,
+        search: str = None,
+):
     return await GrandsServices.find_all(limit=limit, offset=page, search=search)
 
 

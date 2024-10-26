@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
-from news.services import NewsServices
 from news.schemas import SNewsCreate, SNewsUpdate
+from news.services import NewsServices
 from users.dependencies import get_current_user
 from users.models import Users
 
@@ -13,10 +13,10 @@ router = APIRouter(
 
 # CRUD
 @router.get("", summary="Получить все новости")
-async def get_all_news(user: Users = Depends(get_current_user),
-                       page: int = None,
-                       limit: int = None,
-                       search: str = None):
+async def get_all_news(
+        page: int = None,
+        limit: int = None,
+        search: str = None):
     return await NewsServices.find_all(limit=limit, offset=page, search=search)
 
 

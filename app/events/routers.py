@@ -2,10 +2,9 @@ import datetime
 from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException
-from starlette import status
 
-from events.services import EventServices
 from events.schemas import SEventCreate, SEventUpdate
+from events.services import EventServices
 from users.dependencies import get_current_user
 from users.models import Users
 
@@ -17,14 +16,14 @@ router = APIRouter(
 
 # CRUD
 @router.get("", summary="Получить все события")
-async def get_all_events(user: Users = Depends(get_current_user),
-                         new_event: bool = None,
-                         is_paid_event: bool = None,
-                         page: int = None,
-                         limit: int = None,
-                         search: str = None,
-                         date_now: date = datetime.date.today()
-                         ):
+async def get_all_events(
+        new_event: bool = None,
+        is_paid_event: bool = None,
+        page: int = None,
+        limit: int = None,
+        search: str = None,
+        date_now: date = datetime.date.today()
+):
     return await EventServices.find_all(new_event=new_event,
                                         is_paid_event=is_paid_event,
                                         limit=limit,

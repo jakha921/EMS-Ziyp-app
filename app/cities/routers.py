@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
-from cities.services import CityServices
 from cities.schemas import SCityCreate, SCityUpdate
+from cities.services import CityServices
 from users.dependencies import get_current_user
 from users.models import Users
 
@@ -13,10 +13,10 @@ router = APIRouter(
 
 # CRUD
 @router.get("", summary="Получить все города")
-async def get_all_cities(user: Users = Depends(get_current_user),
-                         page: int = None,
-                         limit: int = None,
-                         ):
+async def get_all_cities(
+        page: int = None,
+        limit: int = None,
+):
     return await CityServices.find_all(limit=limit, offset=page)
 
 
